@@ -1,144 +1,111 @@
-Laporan Proyek Machine Learning – [Nama Anda]
-1. Project Overview
-Di era digital saat ini, pengguna dihadapkan dengan banyak pilihan produk, terutama dalam kategori elektronik seperti smartphone. Banyaknya variasi merek, spesifikasi, dan harga membuat pengguna kesulitan dalam menentukan pilihan terbaik. Sistem rekomendasi menjadi solusi penting untuk membantu pengguna menemukan produk yang relevan dengan preferensi dan kebutuhan mereka.
+# Laporan Proyek Machine Learning – Dava Ikhsan R
 
-Proyek ini bertujuan membangun sistem rekomendasi handphone menggunakan pendekatan Content-Based Filtering, Collaborative Filtering (SVD), dan Neural Collaborative Filtering (NCF) untuk menyarankan produk yang sesuai dengan preferensi pengguna berdasarkan data spesifikasi dan rating historis pengguna lain.
+## 1. Project Overview
 
-Referensi:
 
-Bobadilla, J., Ortega, F., Hernando, A., & Gutiérrez, A. (2013). Recommender systems survey. Knowledge-Based Systems, 46, 109–132.
+---
 
-He, X., Liao, L., Zhang, H., Nie, L., Hu, X., & Chua, T. S. (2017). Neural collaborative filtering. Proceedings of the 26th international conference on world wide web, 173–182.
+## 2. Business Understanding
 
-2. Business Understanding
-Problem Statements
-Pengguna kesulitan memilih handphone dari ribuan pilihan yang tersedia di pasaran.
+### Problem Statements
 
-Sistem rekomendasi yang ada seringkali tidak memperhatikan preferensi personal atau spesifikasi yang diminati pengguna.
+1. Pengguna kesulitan memilih handphone dari ribuan pilihan yang tersedia di pasaran.
+2. Sistem rekomendasi yang ada seringkali tidak memperhatikan preferensi personal atau spesifikasi yang diminati pengguna.
 
-Goals
-Membangun sistem rekomendasi yang menyarankan handphone berdasarkan kesamaan spesifikasi (Content-Based).
+### Goals
 
-Memberikan rekomendasi berdasarkan perilaku pengguna lain dengan preferensi serupa (Collaborative Filtering).
+1. Membangun sistem rekomendasi yang menyarankan handphone berdasarkan kesamaan spesifikasi (Content-Based).
+2. Memberikan rekomendasi berdasarkan perilaku pengguna lain dengan preferensi serupa (Collaborative Filtering).
 
-Menggunakan pendekatan deep learning (NCF) untuk meningkatkan akurasi dan menangkap interaksi kompleks antara user dan item.
+### Solution Approach
 
-Solution Approach
-Content-Based Filtering: menggunakan data spesifikasi handphone (RAM, harga, OS, kamera, dll).
+- **Content-Based Filtering**: Menggunakan data spesifikasi handphone seperti RAM, harga, OS, kamera, dll.
+- **Collaborative Filtering (SVD)**: Memanfaatkan interaksi pengguna (rating) untuk menyarankan produk.
 
-Collaborative Filtering (SVD): memanfaatkan interaksi pengguna (rating) untuk menyarankan produk.
+---
 
-Neural Collaborative Filtering (NCF): mengombinasikan embedding dan neural networks untuk menangkap hubungan non-linear.
+## 3. Data Understanding
 
-3. Data Understanding
-Dataset ini terdiri dari 3 file:
+Dataset terdiri dari tiga file:
+- `cellphones_ratings.csv` – Data rating antara pengguna dan handphone
+- `cellphones_users.csv` – Informasi demografi pengguna
+- `cellphones_data.csv` – Spesifikasi lengkap produk handphone
 
-cellphones ratings.csv – data rating antara pengguna dan handphone
+### Fitur Dataset
 
-cellphones users.csv – informasi demografi pengguna
+- `user_id`: ID unik pengguna
+- `cellphone_id`: ID unik produk
+- `rating`: Rating dari pengguna (skala 1–5)
+- `brand`: Merek handphone
+- `model`: Model atau seri
+- `price`: Harga handphone
+- `RAM`, `camera`, `battery size`: Fitur teknis
+- `operating system`: Sistem operasi
 
-cellphones data.csv – spesifikasi lengkap produk handphone
+### EDA (Exploratory Data Analysis)
 
-Jumlah data:
+- Distribusi rating pengguna
+- Produk dengan jumlah rating terbanyak
+- Korelasi fitur numerik (RAM, harga, kamera)
+- Distribusi harga handphone
 
-Rating: 15.000+ baris
+---
 
-Produk: ~500 handphone unik
+## 4. Data Preparation
 
-User: 1.000+ pengguna
+- Menghapus data duplikat
+- Penanganan missing value:
+  - `ratings_df`: Drop baris kosong
+  - `users_df`, `products_df`: Isi dengan forward-fill
+- Penggabungan dataset ke dalam satu `merged_df`
+- **Feature Engineering**:
+  - TF-IDF pada nama model
+  - One-hot encoding untuk brand dan OS
+  - Normalisasi fitur numerik
 
-Fitur-Fitur Dataset:
-user_id: ID unik pengguna
+---
 
-cellphone_id: ID unik produk
+## 5. Modeling
 
-rating: rating dari pengguna (skala 1–5)
+### ✅ Content-Based Filtering
 
-brand: merek handphone
+- Menggunakan cosine similarity antar fitur handphone
+- Top-5 produk paling mirip ditampilkan
+- Cocok untuk user baru (cold-start)
 
-model: model atau seri
+### ✅ Collaborative Filtering (SVD)
 
-price: harga handphone
+- Menggunakan library Surprise
+- Rekomendasi berdasarkan user-user serupa
+- Lebih personal
 
-RAM, camera, battery size: fitur teknis dari handphone
+---
 
-operating system: sistem operasi
+## 6. Evaluation
 
-EDA dilakukan untuk memahami distribusi rating, produk terpopuler, korelasi fitur, dan distribusi harga.
+### Metrik Evaluasi
 
-4. Data Preparation
-Duplicate Removal: Menghapus data duplikat dari ketiga dataset.
+- **MAE** (Mean Absolute Error)
+- **RMSE** (Root Mean Squared Error)
 
-Missing Value Handling:
+### Hasil Evaluasi
 
-ratings_df: drop baris kosong.
+| Model                         | MAE   | RMSE  |
+|------------------------------|-------|-------|
+| Baseline (mean rating)       | 0.65  | 0.80  |
+| Collaborative Filtering (SVD)| 0.42  | 0.53  |
+| Neural Collaborative Filtering| ~0.40 | ~0.51 |
 
-users_df dan products_df: isi kosong dengan metode forward fill.
+---
 
-Merge: Dataset digabung menjadi satu dataframe gabungan.
+## 7. Kesimpulan dan Saran
 
-Feature Engineering:
+### ✅ Kesimpulan
 
-Gunakan TF-IDF pada nama model.
 
-Encode fitur kategori seperti brand dan OS.
 
-Skala fitur numerik seperti RAM, kamera, dan harga.
+### ✅ Saran
 
-5. Modeling
-✅ Content-Based Filtering
-Menggunakan cosine similarity antar fitur handphone.
 
-Hasilkan top-5 produk yang paling mirip dengan produk yang ditentukan.
 
-Kelebihan: cocok untuk cold-start user.
-
-Kekurangan: tidak mempertimbangkan feedback pengguna.
-
-✅ Collaborative Filtering (SVD)
-Menggunakan Surprise SVD.
-
-Memberikan rekomendasi berdasarkan rating pengguna serupa.
-
-Lebih personal dan dinamis.
-
-✅ Neural Collaborative Filtering (NCF)
-Menggunakan TensorFlow/Keras.
-
-Menggunakan embedding + dense layers untuk menangkap interaksi non-linear.
-
-Performa lebih tinggi saat tersedia data cukup.
-
-6. Evaluation
-Metrik evaluasi:
-
-MAE (Mean Absolute Error): rata-rata selisih absolut antara prediksi dan rating aktual.
-
-RMSE (Root Mean Squared Error): penalti lebih besar untuk prediksi jauh dari rating aktual.
-
-✅ Hasil Evaluasi:
-Model	MAE	RMSE
-Baseline (Mean Rating)	0.65	0.80
-Collaborative Filtering (SVD)	0.42	0.53
-Neural CF (NCF)	~0.40	~0.51
-
-NCF memiliki performa terbaik, diikuti oleh SVD, dan jauh lebih baik dari baseline sederhana.
-
-7. Kesimpulan dan Saran
-✅ Kesimpulan:
-Sistem rekomendasi berhasil dibangun dengan tiga pendekatan.
-
-Content-Based cocok untuk user baru.
-
-Collaborative Filtering (SVD) dan NCF lebih unggul dalam akurasi.
-
-NCF memungkinkan untuk menangkap interaksi yang lebih kompleks.
-
-✅ Saran:
-Tambahkan data ulasan teks atau gambar produk untuk memperkaya fitur.
-
-Lakukan tuning model NCF lebih lanjut (epoch, embedding).
-
-Bangun antarmuka interaktif berbasis web atau mobile.
-
-Uji dengan metrik ranking seperti precision@k, recall@k, atau NDCG.
+---
