@@ -359,76 +359,192 @@ Dataset ini merupakan hasil penggabungan dari tiga sumber data utama: `users_df`
 ---
 
 ## Modeling
-
+Model rekomendasi dibangun dengan dua pendekatan utama:
 ### Content-Based Filtering
-- Gunakan **TF-IDF Vectorizer** untuk fitur gabungan produk.
-- Hitung **cosine similarity** antar produk.
-- Produk mirip ditentukan dari kemiripan vektor fitur.
+Pendekatan ini menggunakan teknik **Content-Based Filtering** untuk merekomendasikan produk (handphone) berdasarkan kemiripan fitur antar produk.
 
-```python
-def recommend_by_product(product_name, top_n=5):
-    ...
-```
+![image](https://github.com/user-attachments/assets/3c179c74-f30f-4bde-9147-ec01acf2f4d5)
 
-Contoh hasil:
-```
-Top 5 Produk Mirip 'Galaxy S22':
-- Asus Zenfone 8 (Similarity: 0.99)
-- Google Pixel 6 Pro (0.98)
-- Xiaomi Poco F4 (0.98)
-- Oppo Find X5 Pro (0.98)
-- Xiaomi 12 Pro (0.98)
-```
+1. **Ekstraksi Fitur Produk**  
+   Fitur-fitur penting dari setiap produk digabung menjadi satu string teks. Fitur yang digunakan:
+   - `brand`
+   - `model`
+   - `RAM`
+   - `battery size`
 
-### Collaborative Filtering (SVD)
-- Gunakan algoritma **Singular Value Decomposition (SVD)** dari library `surprise`.
-- Train-test split 80:20 untuk evaluasi model.
+2. **Representasi Teks (TF-IDF)**  
+- Menggunakan `TfidfVectorizer` untuk mengubah teks menjadi representasi numerik berdasarkan frekuensi term yang muncul.
+- TF-IDF membantu menekankan kata-kata unik yang membedakan satu produk dari lainnya.
 
-```python
-svd = SVD()
-svd.fit(trainset)
-predictions = svd.test(testset)
-```
+3. **Penghitungan Kemiripan Produk**  
+- Menggunakan **cosine similarity** untuk mengukur kemiripan antar vektor fitur produk.
+- Semakin tinggi nilai cosine similarity (mendekati 1), semakin mirip dua produk tersebut.
 
-Rekomendasi untuk user_id = 0:
-```
-- iPhone XR (Prediksi Rating: 6.12)
-- X80 Pro (Prediksi Rating: 5.74)
-```
+4. **Fungsi Rekomendasi**  
+Fungsi `recommend_by_product()` menerima input nama produk (misalnya `"galaxy s22"`) dan mengembalikan `top_n` produk paling mirip berdasarkan nilai kemiripan tertinggi.
 
----
+### Collaborative Filtering - SVD
+Pendekatan ini menggunakan teknik **Collaborative Filtering** dengan algoritma **Singular Value Decomposition (SVD)** dari library `Surprise`.
+
+![image](https://github.com/user-attachments/assets/608a61a9-1ed7-47c3-bdbc-ce9d31fad48d)
+
+1. **Persiapan Dataset**
+   - Data digunakan: `ratings_df` yang berisi `user_id`, `cellphone_id`, dan `rating`.
+   - Library `Surprise` digunakan untuk membangun model SVD.
+
+2. **Pembagian Data**
+   - Dataset dibagi menjadi data pelatihan (80%) dan pengujian (20%) menggunakan `train_test_split`.
+
+3. **Pelatihan Model**
+   - Model SVD dilatih menggunakan data pelatihan.
+
+4. **Evaluasi Model**
+   - Evaluasi dilakukan menggunakan metrik **RMSE (Root Mean Squared Error)** pada data pengujian.
+   - Semakin kecil nilai RMSE, semakin baik kualitas prediksi rating.
+
+5. **Prediksi & Rekomendasi**
+   - Prediksi dilakukan pada seluruh pasangan user-produk yang belum diberi rating (anti-testset).
+   - Fungsi `get_top_n()` digunakan untuk menghasilkan `Top-N` rekomendasi terbaik untuk setiap user.
+
+6. **Contoh Output**
+   - Menampilkan 5 rekomendasi teratas untuk user dengan `user_id = 0`.
 
 ##  Evaluation
+### 📊 Evaluasi Model Collaborative Filtering (SVD)
 
-### Metrik Evaluasi:
-- **RMSE** (Root Mean Squared Error)
-- **MAE** (Mean Absolute Error) *(opsional)*
-
-```python
-rmse_score = np.sqrt(mean_squared_error(y_true, y_est))
-```
-
-Hasil:
-```
-RMSE: 2.1936
-```
-
-📌 Interpretasi:
-- RMSE dalam skala 1–10 menunjukkan performa cukup baik.
-- Prediksi relatif dekat dengan rating aktual.
+Evaluasi ini bertujuan untuk mengukur kinerja model rekomendasi berbasis **Collaborative Filtering dengan algoritma SVD** menggunakan data rating user terhadap produk smartphone.
 
 ---
 
-## Kesimpulan dan Saran
+##  1. Metode Evaluasi
 
-### Kesimpulan
-- Sistem rekomendasi berhasil dibangun menggunakan dua pendekatan.
-- Content-Based Filtering efektif dalam menemukan produk serupa.
-- Collaborative Filtering mampu merekomendasikan produk yang relevan berdasarkan pola interaksi pengguna.
+- **RMSE (Root Mean Squared Error)** digunakan sebagai metrik utama evaluasi.
+- RMSE mengukur **selisih rata-rata antara rating aktual dan rating yang diprediksi**.
+- Semakin rendah nilai RMSE, semakin akurat prediksi yang dihasilkan oleh model.
 
-### 💡 Saran
-- Tingkatkan model collaborative filtering dengan algoritma **KNN**, **Matrix Factorization**, atau **Deep Learning**.
-- Gunakan data pengguna nyata untuk validasi lebih baik.
-- Kombinasikan kedua pendekatan dalam model **Hybrid Recommendation System** untuk hasil lebih akurat.
+###  Hasil RMSE: RMSE Model Collaborative Filtering (SVD): 2.1936
+![image](https://github.com/user-attachments/assets/3bb71d43-78cb-4e19-a541-3151a913fb13)
+
+📌 **Interpretasi**:
+- Nilai RMSE 2.19 pada skala rating 1–10 tergolong cukup baik.
+- Ini menunjukkan bahwa prediksi model relatif dekat dengan rating aktual yang diberikan pengguna.
+- Namun, masih ada ruang untuk peningkatan, misalnya dengan optimasi parameter atau kombinasi model (hybrid).
 
 ---
+
+##  2. Contoh Rekomendasi untuk User ID = 1
+
+Berikut adalah **5 rekomendasi teratas** yang dihasilkan model untuk user dengan ID 1: 
+```
+Top 5 Rekomendasi (Collaborative Filtering) untuk User 1:
+- iphone 13 pro (Prediksi Rating: 8.45)
+- moto g power (2022) (Prediksi Rating: 6.63)
+```
+
+##  Insight:
+- Model merekomendasikan produk flagship dan mid-range, menandakan model menangkap preferensi berdasarkan pola rating user lain yang serupa.
+- Produk dengan prediksi rating tinggi cenderung berasal dari brand populer seperti Apple dan Motorola.
+- Rekomendasi bisa menjadi dasar personalisasi yang baik untuk user baru maupun aktif.
+  
+---
+
+### 📊 Evaluasi Model Content-Based Filtering
+
+Evaluasi ini bertujuan untuk menganalisis hasil dari sistem rekomendasi berbasis **Content-Based Filtering**, yaitu dengan membandingkan kesamaan fitur antar produk.
+
+---
+
+## 1. Metode Evaluasi
+  - Model ini menggunakan **kemiripan atribut produk** seperti:
+  - **RAM**
+  - **Main Camera**
+  - **Battery Size**
+  - **Price**
+  - Semua fitur dinormalisasi menggunakan **MinMaxScaler** agar memiliki skala yang seimbang.
+  - Kemiripan antar produk dihitung menggunakan **cosine similarity**.
+  - Produk yang paling mirip dengan produk target akan ditampilkan berdasarkan skor similarity tertinggi.
+
+
+## 2. Contoh Rekomendasi: Produk Mirip 'Galaxy S22'
+
+Berikut adalah **5 produk teratas** yang memiliki kesamaan fitur tertinggi dengan Galaxy S22:
+```
+Top 5 Produk Mirip 'Galaxy S22' (Content-Based Filtering):
+- Asus Zenfone 8 (Similarity: 0.99)
+- Google Pixel 6 Pro (Similarity: 0.98)
+- Xiaomi Poco F4 (Similarity: 0.98)
+- Oppo Find X5 Pro (Similarity: 0.98)
+- Xiaomi 12 Pro (Similarity: 0.98)
+```
+## 3. Interpretasi
+
+- Produk-produk di atas memiliki spesifikasi teknis yang sangat mirip dengan Galaxy S22, sehingga cocok sebagai alternatif.
+- Kemiripan diukur bukan dari merek, tetapi dari **fitur dan performa** teknis.
+
+## 4. Kesimpulan
+
+- **Content-Based Filtering** sangat cocok untuk pengguna yang telah memiliki referensi produk dan ingin menemukan alternatif serupa.
+- Namun, pendekatan ini kurang personal karena **tidak mempertimbangkan preferensi unik tiap pengguna**.
+- Idealnya, metode ini digunakan bersama dengan **Collaborative Filtering** dalam sistem rekomendasi hybrid untuk hasil terbaik.
+
+---
+
+# **Evaluasi Terhadap Business Understanding**
+## ✅ Problem Statements
+- Bagaimana cara membantu pengguna menemukan smartphone yang sesuai dengan kebutuhan mereka di tengah banyaknya pilihan yang tersedia?
+- Bagaimana sistem dapat memberikan rekomendasi yang relevan agar pengguna tidak kebingungan dalam mengambil keputusan pembelian?
+
+## ✅ Goals
+- Membangun sistem rekomendasi smartphone berbasis konten dan kolaborasi.
+- Memberikan rekomendasi yang akurat untuk meningkatkan kepuasan pengguna.
+
+## ✅ Solution Approach
+1. **Content-Based Filtering**: Menggunakan atribut produk (brand, model, RAM, kamera, baterai, dan harga) untuk mengukur kesamaan antar produk.
+2. **Collaborative Filtering (SVD)**: Menggunakan data rating dari pengguna terhadap produk untuk merekomendasikan smartphone yang disukai oleh pengguna dengan preferensi serupa.
+   
+---
+
+
+# KESIMPULAN
+## 1. Content-Based Filtering
+
+- Sistem ini membandingkan produk berdasarkan **kemiripan fitur teknis** seperti RAM, kamera utama, kapasitas baterai, dan harga.
+- Menggunakan teknik **TF-IDF** dan **cosine similarity** untuk mengukur kesamaan antar produk.
+- Contoh hasil: Produk seperti *Zenfone 8*, *Pixel 6 Pro*, dan *Xiaomi 12 Pro* muncul sebagai alternatif yang sangat mirip dengan *Galaxy S22*.
+- **Visualisasi bar chart** memperkuat rekomendasi dengan menunjukkan skor kemiripan mendekati 1.0.
+
+📌 **Kelebihan**:
+- Akurat untuk produk yang belum banyak diulas user.
+- Sangat baik dalam memberi alternatif serupa dari brand berbeda.
+
+---
+
+## 2. Collaborative Filtering (SVD)
+
+- Model ini belajar dari perilaku pengguna (user-product rating) untuk memprediksi produk yang mungkin disukai user lainnya.
+- Menggunakan algoritma **Singular Value Decomposition (SVD)** dari library `Surprise`.
+- Evaluasi dengan **RMSE = 2.19** (dari skala 1–10), menunjukkan prediksi rating yang cukup baik.
+- Contoh output: User ID 1 direkomendasikan produk seperti *iPhone 13 Pro* dengan estimasi rating 8.45.
+
+📌 **Kelebihan**:
+- Personalisasi berdasarkan preferensi pengguna.
+- Cocok untuk memberikan saran yang disesuaikan bagi pengguna aktif.
+
+---
+
+## 3. Perbandingan & Insight
+
+| Aspek                        | Content-Based Filtering                        | Collaborative Filtering (SVD)               |
+|-----------------------------|------------------------------------------------|---------------------------------------------|
+| Data yang dibutuhkan        | Fitur produk                                   | Rating dari pengguna                         |
+| Kemampuan personalisasi     | Terbatas                                       | Tinggi                                       |
+| Cold-start (produk baru)    | Bisa direkomendasikan                          | Tidak bisa tanpa rating                      |
+| Cold-start (user baru)      | Tidak relevan (tidak butuh user)               | Sulit (butuh interaksi pengguna)            |
+| Hasil evaluasi              | Top 5 produk mirip akurat                      | RMSE: 2.19 (cukup baik)                      |
+
+---
+
+## Kesimpulan Sistem
+
+Model sistem rekomendasi ini berhasil menunjukkan performa yang cukup baik dalam dua pendekatan berbeda. **Content-Based Filtering** memberikan alternatif produk yang mirip secara fitur, sedangkan **Collaborative Filtering (SVD)** memberi rekomendasi personal berdasarkan perilaku pengguna lain.
+
