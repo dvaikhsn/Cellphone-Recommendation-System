@@ -1,111 +1,137 @@
+
 # Laporan Proyek Machine Learning – Dava Ikhsan R
 
-## 1. Project Overview
+---
 
+##  Project Overview
+
+Proyek ini bertujuan untuk membangun sistem rekomendasi smartphone menggunakan dua pendekatan utama: **Content-Based Filtering** dan **Collaborative Filtering**. Sistem ini membantu pengguna menemukan produk smartphone yang relevan berdasarkan karakteristik produk dan perilaku pengguna.
+
+Rekomendasi produk sangat penting dalam industri e-commerce karena meningkatkan pengalaman pengguna dan kemungkinan pembelian.
 
 ---
 
-## 2. Business Understanding
+## Business Understanding
 
-### Problem Statements
-
-1. Pengguna kesulitan memilih handphone dari ribuan pilihan yang tersedia di pasaran.
-2. Sistem rekomendasi yang ada seringkali tidak memperhatikan preferensi personal atau spesifikasi yang diminati pengguna.
+### Problem Statement
+Pengguna kesulitan memilih smartphone yang sesuai di tengah banyaknya pilihan. Tanpa rekomendasi yang tepat, pengguna cenderung bingung atau malah tidak membeli produk.
 
 ### Goals
-
-1. Membangun sistem rekomendasi yang menyarankan handphone berdasarkan kesamaan spesifikasi (Content-Based).
-2. Memberikan rekomendasi berdasarkan perilaku pengguna lain dengan preferensi serupa (Collaborative Filtering).
+- Membangun sistem rekomendasi smartphone berbasis konten dan kolaborasi.
+- Memberikan rekomendasi yang akurat untuk meningkatkan kepuasan pengguna.
 
 ### Solution Approach
-
-- **Content-Based Filtering**: Menggunakan data spesifikasi handphone seperti RAM, harga, OS, kamera, dll.
-- **Collaborative Filtering (SVD)**: Memanfaatkan interaksi pengguna (rating) untuk menyarankan produk.
-
----
-
-## 3. Data Understanding
-
-Dataset terdiri dari tiga file:
-- `cellphones_ratings.csv` – Data rating antara pengguna dan handphone
-- `cellphones_users.csv` – Informasi demografi pengguna
-- `cellphones_data.csv` – Spesifikasi lengkap produk handphone
-
-### Fitur Dataset
-
-- `user_id`: ID unik pengguna
-- `cellphone_id`: ID unik produk
-- `rating`: Rating dari pengguna (skala 1–5)
-- `brand`: Merek handphone
-- `model`: Model atau seri
-- `price`: Harga handphone
-- `RAM`, `camera`, `battery size`: Fitur teknis
-- `operating system`: Sistem operasi
-
-### EDA (Exploratory Data Analysis)
-
-- Distribusi rating pengguna
-- Produk dengan jumlah rating terbanyak
-- Korelasi fitur numerik (RAM, harga, kamera)
-- Distribusi harga handphone
+1. **Content-Based Filtering**: Menggunakan atribut produk (brand, model, RAM, kamera, baterai, dan harga) untuk mengukur kesamaan antar produk.
+2. **Collaborative Filtering (SVD)**: Menggunakan data rating dari pengguna terhadap produk untuk merekomendasikan smartphone yang disukai oleh pengguna dengan preferensi serupa.
 
 ---
 
-## 4. Data Preparation
+## Data Understanding
 
-- Menghapus data duplikat
-- Penanganan missing value:
-  - `ratings_df`: Drop baris kosong
-  - `users_df`, `products_df`: Isi dengan forward-fill
-- Penggabungan dataset ke dalam satu `merged_df`
-- **Feature Engineering**:
-  - TF-IDF pada nama model
-  - One-hot encoding untuk brand dan OS
-  - Normalisasi fitur numerik
+### Sumber Data
+- Dataset berisi informasi produk smartphone (brand, model, harga, RAM, kamera, baterai).
+- Dataset rating berisi feedback pengguna terhadap produk.
+- Data berasal dari sumber open source & simulasi pengguna.
 
----
+### Fitur Data
+- `brand`: Merek ponsel.
+- `model`: Model ponsel.
+- `RAM`: Ukuran RAM dalam GB.
+- `battery size`: Kapasitas baterai.
+- `main camera`: Megapiksel kamera utama.
+- `price`: Harga smartphone.
+- `user_id`, `cellphone_id`, `rating`: Data interaksi pengguna dan rating.
 
-## 5. Modeling
-
-### ✅ Content-Based Filtering
-
-- Menggunakan cosine similarity antar fitur handphone
-- Top-5 produk paling mirip ditampilkan
-- Cocok untuk user baru (cold-start)
-
-### ✅ Collaborative Filtering (SVD)
-
-- Menggunakan library Surprise
-- Rekomendasi berdasarkan user-user serupa
-- Lebih personal
+### Exploratory Data Analysis (EDA)
+- Visualisasi distribusi harga dan RAM menunjukkan variasi produk.
+- Korelasi fitur menunjukkan hubungan positif antara RAM dan harga.
 
 ---
 
-## 6. Evaluation
+## Data Preparation
 
-### Metrik Evaluasi
+- **Gabungkan** semua atribut penting menjadi satu representasi string untuk content-based.
+- **Normalisasi** fitur numerik menggunakan MinMaxScaler.
+- **Konversi dataset rating** ke format Surprise `Dataset.load_from_df`.
+- Hilangkan data duplikat dan tangani missing value.
 
-- **MAE** (Mean Absolute Error)
+---
+
+## Modeling
+
+### Content-Based Filtering
+- Gunakan **TF-IDF Vectorizer** untuk fitur gabungan produk.
+- Hitung **cosine similarity** antar produk.
+- Produk mirip ditentukan dari kemiripan vektor fitur.
+
+```python
+def recommend_by_product(product_name, top_n=5):
+    ...
+```
+
+Contoh hasil:
+```
+Top 5 Produk Mirip 'Galaxy S22':
+- Asus Zenfone 8 (Similarity: 0.99)
+- Google Pixel 6 Pro (0.98)
+- Xiaomi Poco F4 (0.98)
+- Oppo Find X5 Pro (0.98)
+- Xiaomi 12 Pro (0.98)
+```
+
+### Collaborative Filtering (SVD)
+- Gunakan algoritma **Singular Value Decomposition (SVD)** dari library `surprise`.
+- Train-test split 80:20 untuk evaluasi model.
+
+```python
+svd = SVD()
+svd.fit(trainset)
+predictions = svd.test(testset)
+```
+
+Rekomendasi untuk user_id = 0:
+```
+- iPhone XR (Prediksi Rating: 6.12)
+- X80 Pro (Prediksi Rating: 5.74)
+```
+
+---
+
+##  Evaluation
+
+### Metrik Evaluasi:
 - **RMSE** (Root Mean Squared Error)
+- **MAE** (Mean Absolute Error) *(opsional)*
 
-### Hasil Evaluasi
+```python
+rmse_score = np.sqrt(mean_squared_error(y_true, y_est))
+```
 
-| Model                         | MAE   | RMSE  |
-|------------------------------|-------|-------|
-| Baseline (mean rating)       | 0.65  | 0.80  |
-| Collaborative Filtering (SVD)| 0.42  | 0.53  |
-| Neural Collaborative Filtering| ~0.40 | ~0.51 |
+Hasil:
+```
+RMSE: 2.1936
+```
+
+📌 Interpretasi:
+- RMSE dalam skala 1–10 menunjukkan performa cukup baik.
+- Prediksi relatif dekat dengan rating aktual.
+
+---
+
+## Kesimpulan dan Saran
+
+### Kesimpulan
+- Sistem rekomendasi berhasil dibangun menggunakan dua pendekatan.
+- Content-Based Filtering efektif dalam menemukan produk serupa.
+- Collaborative Filtering mampu merekomendasikan produk yang relevan berdasarkan pola interaksi pengguna.
+
+### 💡 Saran
+- Tingkatkan model collaborative filtering dengan algoritma **KNN**, **Matrix Factorization**, atau **Deep Learning**.
+- Gunakan data pengguna nyata untuk validasi lebih baik.
+- Kombinasikan kedua pendekatan dalam model **Hybrid Recommendation System** untuk hasil lebih akurat.
 
 ---
 
-## 7. Kesimpulan dan Saran
-
-### ✅ Kesimpulan
-
-
-
-### ✅ Saran
-
-
-
----
+## 📎 Lampiran & Referensi
+- 📁 Dataset simulasi dan skrip dapat diakses melalui file `.ipynb` yang disertakan.
+- 📚 Library: `pandas`, `sklearn`, `surprise`, `matplotlib`, `seaborn`
