@@ -491,16 +491,25 @@ Top 5 Produk Mirip 'Galaxy S22' (Content-Based Filtering):
 
 # **Evaluasi Terhadap Business Understanding**
 ## ✅ Problem Statements
-- Bagaimana cara membantu pengguna menemukan smartphone yang sesuai dengan kebutuhan mereka di tengah banyaknya pilihan yang tersedia?
-- Bagaimana sistem dapat memberikan rekomendasi yang relevan agar pengguna tidak kebingungan dalam mengambil keputusan pembelian?
+1.  Bagaimana cara membantu pengguna menemukan smartphone yang sesuai dengan kebutuhan mereka di tengah banyaknya pilihan yang tersedia?
+  `Melalui pendekatan Content-Based Filtering, sistem mampu merekomendasikan produk serupa berdasarkan spesifikasi teknis, membantu pengguna yang memiliki preferensi fitur tertentu.`
+  
+2. Bagaimana sistem dapat memberikan rekomendasi yang relevan agar pengguna tidak kebingungan dalam mengambil keputusan pembelian?
+  `Dengan Collaborative Filtering (SVD), sistem berhasil memberikan rekomendasi personal yang relevan berdasarkan pola rating pengguna lain, mempermudah pengguna dalam memilih.`
 
 ## ✅ Goals
-- Membangun sistem rekomendasi smartphone berbasis konten dan kolaborasi.
-- Memberikan rekomendasi yang akurat untuk meningkatkan kepuasan pengguna.
+1. Membangun sistem rekomendasi smartphone berbasis konten dan kolaborasi.
+   `Kedua pendekatan telah diimplementasikan dengan baik, masing-masing menangani aspek berbeda dari sistem rekomendasi.`
+   
+2. Memberikan rekomendasi yang akurat untuk meningkatkan kepuasan pengguna.
+   `Tercapai sebagian besar. Hasil evaluasi menunjukkan bahwa Content-Based Filtering memberikan alternatif produk yang sangat mirip, dan Collaborative Filtering memiliki RMSE sebesar 2.19, yang tergolong cukup baik dalam skala rating 1–10.`
 
 ## ✅ Solution Approach
 1. **Content-Based Filtering**: Menggunakan atribut produk (brand, model, RAM, kamera, baterai, dan harga) untuk mengukur kesamaan antar produk.
+   `Berhasil diterapkan. Sistem mampu menghitung kemiripan antar produk menggunakan TF-IDF dan cosine similarity. Produk-produk seperti Asus Zenfone 8 dan Pixel 6 Pro berhasil direkomendasikan sebagai alternatif mirip Galaxy S22.`
+  
 2. **Collaborative Filtering (SVD)**: Menggunakan data rating dari pengguna terhadap produk untuk merekomendasikan smartphone yang disukai oleh pengguna dengan preferensi serupa.
+   `Berhasil diterapkan. Sistem menggunakan data rating pengguna dan model SVD untuk menghasilkan rekomendasi personal. Evaluasi menggunakan RMSE mengindikasikan performa model yang cukup baik untuk prediksi rating.`
    
 ---
 
