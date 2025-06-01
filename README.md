@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/44e55b56-38b6-48aa-92b7-91c8e8edf164)# Laporan Proyek Machine Learning – Dava Ikhsan R
+# Laporan Proyek Machine Learning – Dava Ikhsan R
 
 ---
 
