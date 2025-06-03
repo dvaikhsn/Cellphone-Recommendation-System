@@ -34,6 +34,10 @@ Dataset yang digunakan adalah data Cellphones Recommendations dari Kaggle:
 ### 🗂️ Struktur Dataset
 
 #### **Dataset Products_df**
+```
+print("\nList variabel products_df:")
+products_df
+```
 Dari Dataset Products_df, terdapat 14 kolom dan 32 baris yang berisi informasi mengenai spesifikasi berbagai produk handphone:
 - **`cellphone_id`**: ID unik untuk setiap produk handphone.  
 - **`brand`**: Merek dari handphone (misalnya Samsung, Xiaomi, dll).  
@@ -50,12 +54,28 @@ Dari Dataset Products_df, terdapat 14 kolom dan 32 baris yang berisi informasi m
 - **`price`**: Harga dari produk handphone.  
 - **`release date`**: Tanggal atau tahun rilis produk ke pasar.
   
-    ![image](https://github.com/user-attachments/assets/3344a3a0-afd6-45ef-94e2-bfca3d2ee940)
+Cek missing Value Products_df
+```
+#Cek missing value products_df
+products_df.isnull().sum()
+```
+  ![image](https://github.com/user-attachments/assets/3344a3a0-afd6-45ef-94e2-bfca3d2ee940)
 
-Dari dataset `products_df` tidak terdapat nilai yang hilang dan duplikat, sehingga proses analisis dapat langsung dilakukan tanpa perlu menangani data kosong atau null.  
+Cek data duplikat Value Products_df
+```
+#Cek Data Duplicate value products_df
+products_df.duplicated().sum()
+```
+`0`
+
+Setelah di cek, dataset `products_df` tidak terdapat nilai yang hilang dan duplikat, sehingga proses analisis dapat langsung dilakukan tanpa perlu menangani data kosong atau null.  
 
 ---
 #### **Dataset ratings_df**
+```
+print("List variabel ratings_df:")
+ratings_df
+```
 Dari dataset `ratings_df`, terdapat **3 kolom** dan **990 baris** yang berisi informasi mengenai:
 
 1. **`user_id`** – ID unik dari masing-masing pengguna yang memberikan rating.
@@ -64,10 +84,28 @@ Dari dataset `ratings_df`, terdapat **3 kolom** dan **990 baris** yang berisi in
    
     ![image](https://github.com/user-attachments/assets/71d9b122-7def-42f9-a134-e1c2abc320b7)
 
-Dari dataset `ratings_df` tidak terdapat nilai yang hilang dan duplikat, sehingga proses analisis dapat langsung dilakukan tanpa perlu menangani data kosong atau null. 
+Cek missing Value ratings_df
+```
+#Cek missing value users_df
+users_df.isnull().sum()
+```
+![image](https://github.com/user-attachments/assets/9ba8f60d-93ae-4b50-9a37-baab5bb96a45)
+
+Cek data duplikat Value ratings_df
+```
+#Cek Data Duplicate value ratings_df
+ratings_df.duplicated().sum()
+```
+`0`
+
+Setelah di cek, dataset `ratings_df` tidak terdapat nilai yang hilang dan duplikat, sehingga proses analisis dapat langsung dilakukan tanpa perlu menangani data kosong atau null. 
 
 ---
 #### **Dataset users_df** 
+```
+print("\nList variabel users_df:")
+users_df
+```
 Dari dataset `users_df`, terdapat **4 kolom** dan **99 baris** yang berisi informasi mengenai:
 
 1. **`user_id`** – ID unik dari masing-masing pengguna.
@@ -77,7 +115,21 @@ Dari dataset `users_df`, terdapat **4 kolom** dan **99 baris** yang berisi infor
 
    ![image](https://github.com/user-attachments/assets/0663f357-443c-465d-8bdf-9212a68ad35a)
 
-Dari dataset `users_df` hanya memiliki 1 nilai yang hilang pada kolom `occupation` dan tidak terdapat nilai yang duplikat.
+Cek missing Value users_df
+```
+#Cek missing value users_df
+users_df.isnull().sum()
+```
+![image](https://github.com/user-attachments/assets/a64ead72-a579-4e2d-98ff-a06ea6b8fae0)
+
+Cek data duplikat Value users_df
+```
+#Cek Data Duplicate value ratings_df
+users_df.duplicated().sum()
+```
+`0`
+
+Setelah di cek, dataset `users_df` hanya memiliki 1 nilai yang hilang pada kolom `occupation` dan tidak terdapat nilai yang duplikat.
 
 ---
 ## 📊 Exploratory Data Analysis (EDA)
@@ -91,6 +143,14 @@ Dataset `products_df` berisi **33 baris** dan **14 kolom** yang menggambarkan sp
 - Dataset relatif kecil (33 baris), sehingga analisis bisa lebih mendalam pada setiap fitur.
 
 #### 1. Distribusi Harga Handphone
+```
+# Distribusi Harga Handphone
+plt.figure(figsize=(10,5))
+sns.histplot(products_df['price'].dropna(), bins=30, kde=True, )
+plt.title('Distribusi Harga Handphone')
+plt.tight_layout()
+plt.show()
+```
 ![image](https://github.com/user-attachments/assets/dfa906de-3c0e-4968-acdb-e45a13d1b1f8)
 1. **Distribusi Positif Skew (Right-Skewed)**:
    - Sebagian besar handphone memiliki harga di bawah **1000**.
@@ -108,6 +168,13 @@ Dataset `products_df` berisi **33 baris** dan **14 kolom** yang menggambarkan sp
    - Kurva menunjukkan puncak (mode) pada rentang **200–400**, mengindikasikan harga paling umum dari produk yang tersedia.
   
 #### 2. Korelasi antara fitur numerik
+```
+# Korelasi antara fitur numerik
+numerical = products_df[['RAM', 'main camera', 'battery size', 'price']]
+sns.heatmap(numerical.corr(), annot=True, cmap='Blues')
+plt.title("Korelasi Fitur Numerik")
+plt.show()
+```
 ![image](https://github.com/user-attachments/assets/7937047d-60ee-4527-a069-bc9667e3bb54)
 
 Heatmap menunjukkan nilai korelasi antara fitur-fitur numerik dalam dataset handphone, yaitu:
@@ -170,6 +237,15 @@ Berdasarkan Deskripsi `users_df`,
  
 
 #### 1. Visualisasi distribusi usia pengguna
+```
+# Visualisasi distribusi usia pengguna
+plt.figure(figsize=(8, 5))
+sns.histplot(users_df['age'].dropna(), bins=20, kde=True, color='teal')
+plt.title("Distribusi Usia Pengguna")
+plt.xlabel("Usia")
+plt.ylabel("Jumlah Pengguna")
+plt.show()
+```
 ![image](https://github.com/user-attachments/assets/576d4766-ccfe-49b4-ba50-406832f7bdc3)
 
 Berdasarkan visualisasi dari distribusi pengguna, `users_df` memiliki informasi:
@@ -178,6 +254,19 @@ Berdasarkan visualisasi dari distribusi pengguna, `users_df` memiliki informasi:
 - Sedikit pengguna yang berusia di atas 50 tahun.
 
 #### 2. Visualisasi jumlah pengguna berdasarkan jenis kelamin
+```
+# Visualisasi jumlah pengguna berdasarkan jenis kelamin
+if 'gender' in users_df.columns:
+    gender_clean = users_df[users_df['gender'].isin(['Male', 'Female'])]
+
+    plt.figure(figsize=(6, 4))
+    sns.countplot(x='gender', data=gender_clean, palette='pastel')
+    plt.title("Distribusi Pengguna berdasarkan Jenis Kelamin")
+    plt.xlabel("Jenis Kelamin")
+    plt.ylabel("Jumlah Pengguna")
+    plt.grid(axis='y')
+    plt.show()
+```
 ![image](https://github.com/user-attachments/assets/cb0bcb7a-6d06-4861-9de4-d23d9e2d304e)
 
 Visualisasi tersebut, dapat di interpretasikan:
@@ -186,6 +275,20 @@ Visualisasi tersebut, dapat di interpretasikan:
 
 
 #### 3. Visualisasi jumlah pengguna berdasarkan pekerjaan dengan horizontal bar chart
+```
+# Visualisasi jumlah pengguna berdasarkan pekerjaan dengan horizontal bar chart
+if 'occupation' in users_df.columns:
+    plt.figure(figsize=(10, 12))
+    occupation_counts = users_df['occupation'].value_counts()
+
+    sns.barplot(y=occupation_counts.index, x=occupation_counts.values, palette='coolwarm')
+    plt.title("Distribusi Pengguna berdasarkan Pekerjaan")
+    plt.xlabel("Jumlah Pengguna")
+    plt.ylabel("Pekerjaan")
+    plt.grid(axis='x')
+    plt.tight_layout()
+    plt.show()
+```
 ![image](https://github.com/user-attachments/assets/65b22215-bb7e-49bc-b554-a16b457fab26)
 
 - Sebagian besar pengguna dalam dataset berasal dari latar belakang teknologi, dengan pekerjaan **Information Technology** menjadi yang paling umum, terlihat ada  **10 pengguna**. Hal ini menunjukkan potensi minat teknologi yang kuat di antara pengguna.
@@ -237,6 +340,20 @@ Dapat di interpretasikan bahwa:
 - Kemudia terdapat outlier pada rating maksimum (18), dari skala 1–10. 
 
 #### 1. Distribusi Nilai Rating
+```
+# Distribusi Nilai Rating
+
+# Buang data dengan rating di luar rentang 1–10
+ratings_df = ratings_df[(ratings_df['rating'] >= 1) & (ratings_df['rating'] <= 10)]
+
+plt.figure(figsize=(8, 5))
+sns.countplot(x='rating', data=ratings_df, palette='Set2')
+plt.title("Distribusi Nilai Rating")
+plt.xlabel("Rating")
+plt.ylabel("Jumlah")
+plt.grid(axis='y')
+plt.show()
+```
 ![image](https://github.com/user-attachments/assets/c326549c-8b6e-4ebd-8510-7c69e3631097)
 
 Karena sebelumnya terdapat outlier, yaitu ada rating dengan nilai 18, maka dari itu:
@@ -249,6 +366,20 @@ Sehingga dihasilkan seperti pada visualisasi di atas. Visual ini terlihat bahwa:
 - Sebagian besar pengguna memberikan **rating antara 6–10**, menunjukkan kecenderungan penilaian positif.
 
 #### 2. Jumlah rating per produk
+```
+# Jumlah rating per produk
+rating_counts = ratings_df['cellphone_id'].value_counts()
+top_rated = rating_counts.head(10).index
+
+plt.figure(figsize=(10,5))
+sns.barplot(x=products_df[products_df['cellphone_id'].isin(top_rated)]['model'],
+            y=rating_counts[top_rated].values)
+plt.xticks(rotation=45)
+plt.title("10 Handphone dengan Rating Terbanyak")
+plt.xlabel("Model")
+plt.ylabel("Jumlah Rating")
+plt.show()
+```
 ![image](https://github.com/user-attachments/assets/67982995-7439-4ce8-b81c-74a27f1066b7)
 
 Jumlah rating per produk di atas terlihat bahwa:
@@ -265,18 +396,39 @@ Langkah-langkah berikut dilakukan untuk menyiapkan data dari masing-masing datas
 ### Data Preparation Products_df
 Walaupun tidak ada nilai yang hilang dan duplikasi, dataset ini tetap dilakukan preparation sebagai berikut untuk memastikan data benar benar clear:
 #### 1. Duplikasi Dihapus
+```
+# Hapus duplikasi jika ada
+products_df = products_df.drop_duplicates()
+```
 - Seluruh baris duplikat dalam dataset `products_df` telah dihapus.
 - Tindakan ini bertujuan untuk memastikan kembali  tidak ada entri ganda yang dapat mempengaruhi hasil analisis atau performa model.
 
 #### 2. Penanganan Missing Value
+```
+#Tangani missing value
+products_df = products_df.dropna(subset=['model', 'price'])  # Model dan harga wajib ada
+products_df['brand'] = products_df['brand'].fillna('Unknown')
+products_df['RAM'] = products_df['RAM'].fillna(products_df['RAM'].median())
+products_df['main camera'] = products_df['main camera'].fillna(products_df['main camera'].median())
+products_df['battery size'] = products_df['battery size'].fillna(products_df['battery size'].median())
+```
 - Baris dengan nilai kosong pada kolom `model` dan `price` dihapus karena kedua atribut ini bersifat krusial.
 - Nilai kosong pada kolom `brand` diisi dengan label **"Unknown"**.
 - Kolom numerik seperti `RAM`, `main camera`, dan `battery size` diisi menggunakan **nilai median** untuk meminimalkan pengaruh outlier.
 
 #### 3. Konversi Tipe Data
+```
+# Konversi tipe data jika perlu
+products_df['price'] = products_df['price'].astype(float)
+```
 - Kolom `price` dikonversi menjadi tipe data **float** agar sesuai untuk analisis numerik dan pemodelan.
 
 #### 4. Standarisasi Teks
+```
+# Standarisasi teks
+products_df['model'] = products_df['model'].str.lower().str.strip()
+products_df['brand'] = products_df['brand'].str.lower().str.strip()
+```
 - Nilai pada kolom `model` dan `brand` telah dinormalisasi dengan:
   - Mengubah seluruh huruf menjadi **lowercase**
   - Menghapus **spasi di awal dan akhir**
@@ -284,40 +436,73 @@ Walaupun tidak ada nilai yang hilang dan duplikasi, dataset ini tetap dilakukan 
 
 ### Data Preparation Users_df
 #### 1. Hapus Duplikasi
+```
+# 1. Hapus duplikasi
+users_df = users_df.drop_duplicates(subset=['user_id'])
+```
 - Baris duplikat berdasarkan `user_id` telah dihapus.
 - Hal ini untuk memastikan bahwa setiap pengguna hanya tercatat sekali dalam dataset.
 
 #### 2. Penanganan Missing Value
+```
+# 2. Tangani nilai kosong
+users_df['gender'] = users_df['gender'].fillna('Unknown')
+users_df['age'] = users_df['age'].fillna(users_df['age'].median())
+users_df['occupation_cleaned'] = users_df['occupation_cleaned'].fillna('unknown')
+```
 - Kolom `gender` yang kosong diisi dengan label **"Unknown"**.
 - Kolom `age` yang kosong diisi dengan **median usia** untuk menjaga distribusi data tetap wajar dan mengurangi bias.
 - Kolom `occupation_cleaned` (hasil normalisasi dari `occupation`) diisi dengan **"unknown"** jika kosong.
 
 #### 3. Validasi Nilai Usia
+```
+# 3. Validasi nilai usia
+users_df = users_df[(users_df['age'] >= 10) & (users_df['age'] <= 90)]  # Range usia wajar
+```
 - Data difilter agar hanya menyertakan pengguna dengan rentang usia **antara 10 hingga 90 tahun**.
 - Tujuan langkah ini adalah untuk menghapus outlier yang tidak realistis (misalnya usia <10 atau >90).
 
 
 ### Data Preparation Ratings_df
 #### 1. Pembersihan Nilai Outlier
+```
+# 1. bersihkan dari nilai outlier (rating > 10)
+ratings_df = ratings_df[(ratings_df['rating'] >= 1) & (ratings_df['rating'] <= 10)]
+```
 - Hanya rating dengan rentang **1 hingga 10** yang disertakan.
 - Nilai rating di luar batas ini (misalnya 18) dianggap **outlier** dan telah dihapus untuk menjaga integritas data.
 
 #### 2. Penghapusan Duplikasi User–Produk
+```
+# 2. Cek duplikasi rating user–produk
+ratings_df = ratings_df.drop_duplicates(subset=['user_id', 'cellphone_id'])
+```
 - Duplikasi pada kombinasi `user_id` dan `cellphone_id` telah dihapus.
 - Hal ini memastikan bahwa setiap pengguna hanya memberikan **satu rating unik per produk**.
-
 
 
 Kemudian setelah dataset ditangani, masuk ke tahap:
 ### Sinkronisasi Antar Dataset
 Sinkronisasi antar dataset adalah proses penting dalam data preprocessing untuk memastikan bahwa data yang digunakan dalam analisis atau pelatihan model benar-benar konsisten, bersih, dan relevan.
 #### 1. Filter Data Valid
+```
+# 1. Pastikan hanya user_id dan cellphone_id yang valid (ada di masing-masing tabel)
+ratings_df = ratings_df[
+    (ratings_df['user_id'].isin(users_df['user_id'])) &
+    (ratings_df['cellphone_id'].isin(products_df['cellphone_id']))
+]
+```
 - Data `ratings_df` disaring agar hanya memuat:
   - `user_id` yang terdapat dalam `users_df`
   - `cellphone_id` yang terdapat dalam `products_df`
 - Langkah ini memastikan bahwa semua interaksi hanya melibatkan pengguna dan produk yang **valid dan terdaftar**.
 
 #### 2. Penggabungan Dataset
+```
+# 2. Gabungkan semua untuk analisis lanjutan jika dibutuhkan
+merged_df = ratings_df.merge(users_df, on='user_id', how='left')
+merged_df = merged_df.merge(products_df, on='cellphone_id', how='left')
+```
 - Dataset `ratings_df`, `users_df`, dan `products_df` telah digabung:
   - Pertama berdasarkan `user_id`
   - Kemudian berdasarkan `cellphone_id`
