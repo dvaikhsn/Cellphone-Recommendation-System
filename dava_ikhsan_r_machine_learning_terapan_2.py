@@ -35,9 +35,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.model_selection import train_test_split
 
-"""## **Data Understanding**
+"""# **Data Understanding**
 
-### **Load dataset**
+## **Load dataset**
 """
 
 from google.colab import drive
@@ -47,7 +47,7 @@ ratings_df = pd.read_csv("/content/drive/My Drive/Machine Learning Terapan #2/ce
 users_df = pd.read_csv("/content/drive/My Drive/Machine Learning Terapan #2/cellphones users.csv")
 products_df = pd.read_csv("/content/drive/My Drive/Machine Learning Terapan #2/cellphones data.csv")
 
-"""## **Data Understanding**"""
+"""## **Dataset Produk**"""
 
 print("\nList variabel products_df:")
 products_df
@@ -69,6 +69,8 @@ Dari Dataset Products_df, terdapat 14 kolom dan 32 baris yang berisi informasi m
 - **`weight`**: Berat handphone dalam gram.  
 - **`price`**: Harga dari produk handphone.  
 - **`release date`**: Tanggal atau tahun rilis produk ke pasar.
+
+## **Dataset Rating**
 """
 
 print("List variabel ratings_df:")
@@ -81,6 +83,8 @@ Dari dataset `ratings_df`, terdapat **3 kolom** dan **990 baris** yang berisi in
 1. **`user_id`** – ID unik dari masing-masing pengguna yang memberikan rating.
 2. **`cellphone_id`** – ID unik dari masing-masing produk handphone yang diberi rating.
 3. **`rating`** – Nilai penilaian yang diberikan oleh pengguna terhadap produk, dalam skala 1–10.
+
+## **Dataset User**
 """
 
 print("\nList variabel users_df:")
@@ -95,9 +99,11 @@ Dari dataset `users_df`, terdapat **4 kolom** dan **99 baris** yang berisi infor
 3. **`gender`** – Jenis kelamin pengguna (misalnya, 'M' untuk male dan 'F' untuk female).
 4. **`occupation`** – Pekerjaan pengguna (dalam format kategori atau teks).
 
-### **Assesing Data**
+## **Assesing Data**
 
-### Cek Missing Value
+# **Cek Missing Value**
+
+## **Dataset Produk**
 """
 
 #Cek missing value products_df
@@ -105,7 +111,9 @@ products_df.isnull().sum()
 
 """### **Insight:**
 
-Dari dataset `products_df` tidak terdapat nilai yang hilang, sehingga proses analisis dapat langsung dilakukan tanpa perlu menangani data kosong atau null.  
+Dari dataset `products_df` tidak terdapat nilai yang hilang, sehingga proses analisis dapat langsung dilakukan tanpa perlu menangani data kosong atau null.
+
+## **Dataset User**
 """
 
 #Cek missing value users_df
@@ -114,6 +122,8 @@ users_df.isnull().sum()
 """### **Insight:**
 
 Dari dataset `users_df` hanya memiliki 1 nilai yang hilang pada kolom `occupation`
+
+## **Dataset Rating**
 """
 
 #Cek missing value ratings_df
@@ -123,7 +133,7 @@ ratings_df.isnull().sum()
 
 Dari dataset `ratings_df` tidak terdapat nilai yang hilang, sehingga proses analisis dapat langsung dilakukan tanpa perlu menangani data kosong atau null.
 
-### Cek Data Duplicate
+## **Cek Data Duplicate**
 """
 
 #Cek Data Duplicate value products_df
@@ -139,9 +149,9 @@ ratings_df.duplicated().sum()
 
 Dari ketiga dataset (`ratings_df`, `users_df`, dan `products_df`), **tidak ada data yang duplikat**
 
-## **Exploratory Data Analysis & Visualisasi Data**
+# **Exploratory Data Analysis & Visualisasi Data**
 
-### Dataset Produk
+# **Dataset Produk**
 """
 
 products_df.info()
@@ -218,7 +228,7 @@ Nilai korelasi berkisar antara -1 hingga 1:
      - Tidak semua handphone dengan kamera besar atau baterai besar memiliki harga tinggi.
      - Fitur seperti kamera dan baterai mungkin tidak menjadi indikator utama dalam penetapan harga, atau bisa jadi lebih dominan di segmen mid-end.
 
-### Dataset User
+# **Dataset User**
 """
 
 print("Informasi Dataset User:")
@@ -372,7 +382,7 @@ users_df['occupation_cleaned'] = (
     .str.replace(r'[^a-z\s]', '', regex=True)
 )
 
-### Dataset Rating
+# **Dataset Rating**
 """
 
 ratings_df.info()
@@ -442,42 +452,28 @@ plt.show()
 - Secara keseluruhan, model dari **Apple**, **Samsung**, **Xiaomi**, dan **Motorola** mendominasi daftar 10 besar.
 - Jumlah rating tinggi bisa mengindikasikan popularitas atau banyaknya pengguna yang terlibat dengan produk tersebut.
 
-## **Data Preparation**
+# **Data Preparation**
+
+# **Dataset Produk**
 """
 
 # PRODUCTS DATA PREPARATION
 
-# 1. Hapus duplikasi jika ada
-products_df = products_df.drop_duplicates()
-
-# 2. Tangani missing value
-products_df = products_df.dropna(subset=['model', 'price'])  # Model dan harga wajib ada
-products_df['brand'] = products_df['brand'].fillna('Unknown')
-products_df['RAM'] = products_df['RAM'].fillna(products_df['RAM'].median())
-products_df['main camera'] = products_df['main camera'].fillna(products_df['main camera'].median())
-products_df['battery size'] = products_df['battery size'].fillna(products_df['battery size'].median())
-
-# 3. Konversi tipe data jika perlu
+# 1. Konversi tipe data jika perlu
 products_df['price'] = products_df['price'].astype(float)
 
-# 4. Standarisasi teks
+# 2. Standarisasi teks
 products_df['model'] = products_df['model'].str.lower().str.strip()
 products_df['brand'] = products_df['brand'].str.lower().str.strip()
 
 """###  Data Preparation - Produk
-#### 1. Duplikasi Dihapus
-- Seluruh baris duplikat dalam dataset `products_df` telah dihapus.
-- Tindakan ini bertujuan untuk memastikan tidak ada entri ganda yang dapat mempengaruhi hasil analisis atau performa model.
 
-#### 2. Penanganan Missing Value
-- Baris dengan nilai kosong pada kolom `model` dan `price` dihapus karena kedua atribut ini bersifat krusial.
-- Nilai kosong pada kolom `brand` diisi dengan label **"Unknown"**.
-- Kolom numerik seperti `RAM`, `main camera`, dan `battery size` diisi menggunakan **nilai median** untuk meminimalkan pengaruh outlier.
+Karena tidak ada data yang hilang dan duplikat pada dataset products_df, sehingga preparation yang dilakukan sebagai berikut:
 
-#### 3. Konversi Tipe Data
+#### 1. Konversi Tipe Data
 - Kolom `price` dikonversi menjadi tipe data **float** agar sesuai untuk analisis numerik dan pemodelan.
 
-#### 4. Standarisasi Teks
+#### 2. Standarisasi Teks
 - Nilai pada kolom `model` dan `brand` telah dinormalisasi dengan:
   - Mengubah seluruh huruf menjadi **lowercase**
   - Menghapus **spasi di awal dan akhir**
@@ -486,32 +482,23 @@ products_df['brand'] = products_df['brand'].str.lower().str.strip()
 
 # USERS DATA PREPARATION
 
-# 1. Hapus duplikasi
-users_df = users_df.drop_duplicates(subset=['user_id'])
-
-# 2. Tangani nilai kosong
-users_df['gender'] = users_df['gender'].fillna('Unknown')
-users_df['age'] = users_df['age'].fillna(users_df['age'].median())
+# 1. Tangani nilai kosong
 users_df['occupation_cleaned'] = users_df['occupation_cleaned'].fillna('unknown')
 
-# 3. Validasi nilai usia
+# 2. Validasi nilai usia
 users_df = users_df[(users_df['age'] >= 10) & (users_df['age'] <= 90)]  # Range usia wajar
 
-"""### Data Preparation - Users
+"""# **Dataset User**
 
-#### 1. Hapus Duplikasi
-- Baris duplikat berdasarkan `user_id` telah dihapus.
-- Hal ini untuk memastikan bahwa setiap pengguna hanya tercatat sekali dalam dataset.
+### Data Preparation - Users
 
-#### 2. Penanganan Missing Value
-- Kolom `gender` yang kosong diisi dengan label **"Unknown"**.
-- Kolom `age` yang kosong diisi dengan **median usia** untuk menjaga distribusi data tetap wajar dan mengurangi bias.
-- Kolom `occupation_cleaned` (hasil normalisasi dari `occupation`) diisi dengan **"unknown"** jika kosong.
+#### 1. Penanganan Missing Value
+- Kolom `occupation_cleaned` (hasil normalisasi teks dari `occupation` berdasarkan huruf kecil dan besarnya).
+Karena pada dataset users_df ini terdapat `1` data yang hilang, maka dari itu `occupation_cleaned` hasil normalisasi ini  diisi dengan **"unknown"** jika datanya kosong.
 
-#### 3. Validasi Nilai Usia
+#### 2. Validasi Nilai Usia
 - Data difilter agar hanya menyertakan pengguna dengan rentang usia **antara 10 hingga 90 tahun**.
 - Tujuan langkah ini adalah untuk menghapus outlier yang tidak realistis (misalnya usia <10 atau >90).
-
 """
 
 #  RATINGS DATA PREPARATION
@@ -522,7 +509,9 @@ ratings_df = ratings_df[(ratings_df['rating'] >= 1) & (ratings_df['rating'] <= 1
 # 2. Cek duplikasi rating user–produk
 ratings_df = ratings_df.drop_duplicates(subset=['user_id', 'cellphone_id'])
 
-"""### Data Preparation - Ratings
+"""# **Dataset Rating**
+
+### Data Preparation - Ratings
 
 #### 1. Pembersihan Nilai Outlier
 - Hanya rating dengan rentang **1 hingga 10** yang disertakan.
@@ -531,7 +520,6 @@ ratings_df = ratings_df.drop_duplicates(subset=['user_id', 'cellphone_id'])
 #### 2. Penghapusan Duplikasi User–Produk
 - Duplikasi pada kombinasi `user_id` dan `cellphone_id` telah dihapus.
 - Hal ini memastikan bahwa setiap pengguna hanya memberikan **satu rating unik per produk**.
-
 """
 
 # SINKRONISASI ANTAR DATASET
@@ -598,6 +586,8 @@ Dataset ini merupakan hasil penggabungan dari tiga sumber data utama: `users_df`
 - Kolom-kolom dari `users_df` dan `products_df` telah berhasil ditransfer ke dalam satu frame yang seragam.
 
 ## **Modeling**
+
+# **Content Based Filtering**
 """
 
 # 📌 CONTENT-BASED FILTERING
@@ -636,7 +626,7 @@ def recommend_by_product(product_name, top_n=5):
 print("\nRekomendasi mirip dengan 'galaxy s22':")
 print(recommend_by_product('galaxy s22'))
 
-"""# Analisis Content-Based Filtering
+"""Analisis Content-Based Filtering
 
 Pendekatan ini menggunakan teknik **Content-Based Filtering** untuk merekomendasikan produk (handphone) berdasarkan kemiripan fitur antar produk.
 
@@ -658,7 +648,7 @@ Pendekatan ini menggunakan teknik **Content-Based Filtering** untuk merekomendas
 4. **Fungsi Rekomendasi**  
 Fungsi `recommend_by_product()` menerima input nama produk (misalnya `"galaxy s22"`) dan mengembalikan `top_n` produk paling mirip berdasarkan nilai kemiripan tertinggi.
 
-
+# **Collaborative Filtering**
 """
 
 # 👥 COLLABORATIVE FILTERING - SVD
@@ -683,31 +673,7 @@ predictions = svd.test(testset)
 print("\nRMSE dari Collaborative Filtering (SVD):")
 rmse(predictions)
 
-# Fungsi rekomendasi berdasarkan user
-from collections import defaultdict
-
-def get_top_n(predictions, n=5):
-    top_n = defaultdict(list)
-    for uid, iid, true_r, est, _ in predictions:
-        top_n[uid].append((iid, est))
-
-    for uid, user_ratings in top_n.items():
-        user_ratings.sort(key=lambda x: x[1], reverse=True)
-        top_n[uid] = user_ratings[:n]
-
-    return top_n
-
-# Prediksi semua pasangan user-produk
-all_user_predictions = svd.test(trainset.build_anti_testset())
-top_n_recommendations = get_top_n(all_user_predictions, n=5)
-
-# Contoh rekomendasi untuk user dengan ID 0
-print("\nRekomendasi untuk user_id = 0:")
-for prod_id, rating_est in top_n_recommendations[0]:
-    prod_info = products_df[products_df['cellphone_id'] == prod_id][['model', 'brand', 'price']].values[0]
-    print(f"Model: {prod_info[0]}, Brand: {prod_info[1]}, Est. Rating: {rating_est:.2f}, Price: ${prod_info[2]}")
-
-"""# Analisis Collaborative Filtering - SVD
+"""Analisis Collaborative Filtering - SVD
 
 Pendekatan ini menggunakan teknik **Collaborative Filtering** dengan algoritma **Singular Value Decomposition (SVD)** dari library `Surprise`.
 
@@ -725,14 +691,91 @@ Pendekatan ini menggunakan teknik **Collaborative Filtering** dengan algoritma *
    - Evaluasi dilakukan menggunakan metrik **RMSE (Root Mean Squared Error)** pada data pengujian.
    - Semakin kecil nilai RMSE, semakin baik kualitas prediksi rating.
 
-5. **Prediksi & Rekomendasi**
-   - Prediksi dilakukan pada seluruh pasangan user-produk yang belum diberi rating (anti-testset).
-   - Fungsi `get_top_n()` digunakan untuk menghasilkan `Top-N` rekomendasi terbaik untuk setiap user.
+# **Evaluation**
 
-6. **Contoh Output**
-   - Menampilkan 5 rekomendasi teratas untuk user dengan `user_id = 0`.
+# **Content Based Filterting**
+"""
 
-## **Evaluation**
+# Content-Based Filtering - Analisis
+
+# Lihat produk yang mirip dengan Galaxy S22
+target_model = 'galaxy s22'
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import MinMaxScaler
+
+# Feature matrix
+features_cb = products_df[['RAM', 'main camera', 'battery size', 'price']].copy()
+features_cb_scaled = MinMaxScaler().fit_transform(features_cb)
+cos_sim = cosine_similarity(features_cb_scaled)
+
+# Ambil index dari produk target
+idx = products_df[products_df['model'] == target_model].index[0]
+sim_scores = list(enumerate(cos_sim[idx]))
+sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+top_similar_idx = [i for i, score in sim_scores[1:6]]
+
+cb_results = products_df.iloc[top_similar_idx][['brand', 'model']]
+cb_results['similarity'] = [sim_scores[i][1] for i in range(1, 6)]
+
+print(f"\nTop 5 Produk Mirip '{target_model.title()}' (Content-Based Filtering):")
+for _, row in cb_results.iterrows():
+    print(f"- {row['brand'].title()} {row['model'].title()} (Similarity: {row['similarity']:.2f})")
+
+# Visualisasi
+plt.figure(figsize=(8, 5))
+sns.barplot(data=cb_results, x='similarity', y='model', palette='mako')
+plt.title(f"Top 5 Produk Mirip '{target_model.title()}'")
+plt.xlabel("Skor Kemiripan")
+plt.ylabel("Model")
+plt.tight_layout()
+plt.show()
+
+"""##  Evaluasi Model Content-Based Filtering
+
+Evaluasi ini bertujuan untuk menganalisis hasil dari sistem rekomendasi berbasis **Content-Based Filtering**, yaitu dengan membandingkan kesamaan fitur antar produk.
+
+---
+
+## 1. Metode Evaluasi
+
+- Model ini menggunakan **kemiripan atribut produk** seperti:
+  - **RAM**
+  - **Main Camera**
+  - **Battery Size**
+  - **Price**
+  - Semua fitur dinormalisasi menggunakan **MinMaxScaler** agar memiliki skala yang seimbang.
+  - Kemiripan antar produk dihitung menggunakan **cosine similarity**.
+  - Produk yang paling mirip dengan produk target akan ditampilkan berdasarkan skor similarity tertinggi.
+
+---
+
+## 2. Contoh Rekomendasi: Produk Mirip 'Galaxy S22'
+
+Berikut adalah **5 produk teratas** yang memiliki kesamaan fitur tertinggi dengan Galaxy S22:
+
+
+```
+Top 5 Produk Mirip 'Galaxy S22' (Content-Based Filtering):
+- Asus Zenfone 8 (Similarity: 0.99)
+- Google Pixel 6 Pro (Similarity: 0.98)
+- Xiaomi Poco F4 (Similarity: 0.98)
+- Oppo Find X5 Pro (Similarity: 0.98)
+- Xiaomi 12 Pro (Similarity: 0.98)
+```
+
+
+## 3. Interpretasi
+
+- Produk-produk di atas memiliki spesifikasi teknis yang sangat mirip dengan Galaxy S22, sehingga cocok sebagai alternatif.
+- Kemiripan diukur bukan dari merek, tetapi dari **fitur dan performa** teknis.
+- Semua produk memiliki **skor kemiripan mendekati 1.0**, menunjukkan bahwa fitur-fitur teknisnya sangat serupa.
+- Produk seperti **Zenfone 8** dan **Pixel 6 Pro** menjadi alternatif utama.
+- Ini membantu pengguna menemukan opsi dengan **fitur sebanding**, meski dari brand berbeda atau harga lebih terjangkau.
+
+
+---
+
+# **Collaborative Filtering**
 """
 
 from sklearn.metrics.pairwise import cosine_similarity
@@ -774,6 +817,20 @@ for iid, est_rating in top_n[user_id]:
     model_name = products_df[products_df['cellphone_id'] == iid]['model'].values[0]
     print(f"- {model_name} (Prediksi Rating: {est_rating:.2f})")
 
+# VISUALISASI: Collaborative Filtering
+
+# Buat DataFrame hasil rekomendasi
+collab_recs = pd.DataFrame(top_n[user_id], columns=['cellphone_id', 'predicted_rating'])
+collab_recs = collab_recs.merge(products_df[['cellphone_id', 'model', 'brand']], on='cellphone_id', how='left')
+
+plt.figure(figsize=(8,5))
+sns.barplot(data=collab_recs, x='predicted_rating', y='model', palette='coolwarm')
+plt.title(f"Top 5 Rekomendasi (Collaborative Filtering) untuk User {user_id}")
+plt.xlabel("Rating Prediksi")
+plt.ylabel("Phone")
+plt.tight_layout()
+plt.show()
+
 """## 📊 Evaluasi Model Collaborative Filtering (SVD)
 
 Evaluasi ini bertujuan untuk mengukur kinerja model rekomendasi berbasis **Collaborative Filtering dengan algoritma SVD** menggunakan data rating user terhadap produk smartphone.
@@ -809,118 +866,8 @@ Top 5 Rekomendasi (Collaborative Filtering) untuk User 1:
 - Model merekomendasikan produk flagship dan mid-range, menandakan model menangkap preferensi berdasarkan pola rating user lain yang serupa.
 - Produk dengan prediksi rating tinggi cenderung berasal dari brand populer seperti Apple dan Motorola.
 - Rekomendasi bisa menjadi dasar personalisasi yang baik untuk user baru maupun aktif.
-"""
-
-# VISUALISASI: Collaborative Filtering
-
-# Buat DataFrame hasil rekomendasi
-collab_recs = pd.DataFrame(top_n[user_id], columns=['cellphone_id', 'predicted_rating'])
-collab_recs = collab_recs.merge(products_df[['cellphone_id', 'model', 'brand']], on='cellphone_id', how='left')
-
-plt.figure(figsize=(8,5))
-sns.barplot(data=collab_recs, x='predicted_rating', y='model', palette='coolwarm')
-plt.title(f"Top 5 Rekomendasi (Collaborative Filtering) untuk User {user_id}")
-plt.xlabel("Rating Prediksi")
-plt.ylabel("Phone")
-plt.tight_layout()
-plt.show()
-
-"""### Insight:
 - iPhone 13 Pro memiliki rating prediksi tertinggi (~8.7) → kemungkinan besar disukai oleh User 1.
-
 - Moto G Power (2022) juga direkomendasikan tapi dengan skor lebih rendah (~6.8).
-
-
-"""
-
-# Content-Based Filtering - Analisis
-
-# Contoh: Lihat produk yang mirip dengan Galaxy S22
-target_model = 'galaxy s22'
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import MinMaxScaler
-
-# Feature matrix
-features_cb = products_df[['RAM', 'main camera', 'battery size', 'price']].copy()
-features_cb_scaled = MinMaxScaler().fit_transform(features_cb)
-cos_sim = cosine_similarity(features_cb_scaled)
-
-# Ambil index dari produk target
-idx = products_df[products_df['model'] == target_model].index[0]
-sim_scores = list(enumerate(cos_sim[idx]))
-sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-top_similar_idx = [i for i, score in sim_scores[1:6]]
-
-cb_results = products_df.iloc[top_similar_idx][['brand', 'model']]
-cb_results['similarity'] = [sim_scores[i][1] for i in range(1, 6)]
-
-print(f"\nTop 5 Produk Mirip '{target_model.title()}' (Content-Based Filtering):")
-for _, row in cb_results.iterrows():
-    print(f"- {row['brand'].title()} {row['model'].title()} (Similarity: {row['similarity']:.2f})")
-
-"""##  Evaluasi Model Content-Based Filtering
-
-Evaluasi ini bertujuan untuk menganalisis hasil dari sistem rekomendasi berbasis **Content-Based Filtering**, yaitu dengan membandingkan kesamaan fitur antar produk.
-
----
-
-## 1. Metode Evaluasi
-
-- Model ini menggunakan **kemiripan atribut produk** seperti:
-  - **RAM**
-  - **Main Camera**
-  - **Battery Size**
-  - **Price**
-  - Semua fitur dinormalisasi menggunakan **MinMaxScaler** agar memiliki skala yang seimbang.
-  - Kemiripan antar produk dihitung menggunakan **cosine similarity**.
-  - Produk yang paling mirip dengan produk target akan ditampilkan berdasarkan skor similarity tertinggi.
-
----
-
-## 2. Contoh Rekomendasi: Produk Mirip 'Galaxy S22'
-
-Berikut adalah **5 produk teratas** yang memiliki kesamaan fitur tertinggi dengan Galaxy S22:
-
-
-```
-Top 5 Produk Mirip 'Galaxy S22' (Content-Based Filtering):
-- Asus Zenfone 8 (Similarity: 0.99)
-- Google Pixel 6 Pro (Similarity: 0.98)
-- Xiaomi Poco F4 (Similarity: 0.98)
-- Oppo Find X5 Pro (Similarity: 0.98)
-- Xiaomi 12 Pro (Similarity: 0.98)
-```
-
-
-## 3. Interpretasi
-
-- Produk-produk di atas memiliki spesifikasi teknis yang sangat mirip dengan Galaxy S22, sehingga cocok sebagai alternatif.
-- Kemiripan diukur bukan dari merek, tetapi dari **fitur dan performa** teknis.
-
----
-
-## 4. Kesimpulan
-
-- **Content-Based Filtering** sangat cocok untuk pengguna yang telah memiliki referensi produk dan ingin menemukan alternatif serupa.
-- Namun, pendekatan ini kurang personal karena **tidak mempertimbangkan preferensi unik tiap pengguna**.
-- Idealnya, metode ini digunakan bersama dengan **Collaborative Filtering** dalam sistem rekomendasi hybrid untuk hasil terbaik.
-
----
-"""
-
-# Visualisasi
-plt.figure(figsize=(8, 5))
-sns.barplot(data=cb_results, x='similarity', y='model', palette='mako')
-plt.title(f"Top 5 Produk Mirip '{target_model.title()}'")
-plt.xlabel("Skor Kemiripan")
-plt.ylabel("Model")
-plt.tight_layout()
-plt.show()
-
-"""##  Insight:
-- Semua produk memiliki **skor kemiripan mendekati 1.0**, menunjukkan bahwa fitur-fitur teknisnya sangat serupa.
-- Produk seperti **Zenfone 8** dan **Pixel 6 Pro** menjadi alternatif utama.
-- Ini membantu pengguna menemukan opsi dengan **fitur sebanding**, meski dari brand berbeda atau harga lebih terjangkau.
 
 # **KESIMPULAN**
 
