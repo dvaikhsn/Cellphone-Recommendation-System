@@ -394,36 +394,17 @@ Jumlah rating per produk di atas terlihat bahwa:
 Langkah-langkah berikut dilakukan untuk menyiapkan data dari masing-masing dataset sebelum proses pemodelan. Semua teknik disusun sesuai urutan eksekusi di notebook:
 
 ### Data Preparation Products_df
-Walaupun tidak ada nilai yang hilang dan duplikasi, dataset ini tetap dilakukan preparation sebagai berikut untuk memastikan data benar benar clear:
-#### 1. Duplikasi Dihapus
-```
-# Hapus duplikasi jika ada
-products_df = products_df.drop_duplicates()
-```
-- Seluruh baris duplikat dalam dataset `products_df` telah dihapus.
-- Tindakan ini bertujuan untuk memastikan kembali  tidak ada entri ganda yang dapat mempengaruhi hasil analisis atau performa model.
 
-#### 2. Penanganan Missing Value
-```
-#Tangani missing value
-products_df = products_df.dropna(subset=['model', 'price'])  # Model dan harga wajib ada
-products_df['brand'] = products_df['brand'].fillna('Unknown')
-products_df['RAM'] = products_df['RAM'].fillna(products_df['RAM'].median())
-products_df['main camera'] = products_df['main camera'].fillna(products_df['main camera'].median())
-products_df['battery size'] = products_df['battery size'].fillna(products_df['battery size'].median())
-```
-- Baris dengan nilai kosong pada kolom `model` dan `price` dihapus karena kedua atribut ini bersifat krusial.
-- Nilai kosong pada kolom `brand` diisi dengan label **"Unknown"**.
-- Kolom numerik seperti `RAM`, `main camera`, dan `battery size` diisi menggunakan **nilai median** untuk meminimalkan pengaruh outlier.
+Karena tidak ada data yang hilang dan duplikat pada dataset products_df, sehingga preparation yang dilakukan sebagai berikut:
 
-#### 3. Konversi Tipe Data
+#### 1. Konversi Tipe Data
 ```
 # Konversi tipe data jika perlu
 products_df['price'] = products_df['price'].astype(float)
 ```
 - Kolom `price` dikonversi menjadi tipe data **float** agar sesuai untuk analisis numerik dan pemodelan.
 
-#### 4. Standarisasi Teks
+#### 2. Standarisasi Teks
 ```
 # Standarisasi teks
 products_df['model'] = products_df['model'].str.lower().str.strip()
@@ -435,28 +416,18 @@ products_df['brand'] = products_df['brand'].str.lower().str.strip()
 - Langkah ini penting untuk menghindari duplikasi tidak langsung akibat perbedaan penulisan teks.
 
 ### Data Preparation Users_df
-#### 1. Hapus Duplikasi
-```
-# 1. Hapus duplikasi
-users_df = users_df.drop_duplicates(subset=['user_id'])
-```
-- Baris duplikat berdasarkan `user_id` telah dihapus.
-- Hal ini untuk memastikan bahwa setiap pengguna hanya tercatat sekali dalam dataset.
 
-#### 2. Penanganan Missing Value
+#### 1. Penanganan Missing Value
 ```
-# 2. Tangani nilai kosong
-users_df['gender'] = users_df['gender'].fillna('Unknown')
-users_df['age'] = users_df['age'].fillna(users_df['age'].median())
+# 1. Tangani nilai kosong
 users_df['occupation_cleaned'] = users_df['occupation_cleaned'].fillna('unknown')
 ```
-- Kolom `gender` yang kosong diisi dengan label **"Unknown"**.
-- Kolom `age` yang kosong diisi dengan **median usia** untuk menjaga distribusi data tetap wajar dan mengurangi bias.
-- Kolom `occupation_cleaned` (hasil normalisasi dari `occupation`) diisi dengan **"unknown"** jika kosong.
+- Kolom `occupation_cleaned` (hasil normalisasi teks dari `occupation` berdasarkan huruf kecil dan besarnya).
+- Karena pada dataset users_df ini terdapat `1` data yang hilang, maka dari itu `occupation_cleaned` hasil normalisasi ini  diisi dengan **"unknown"** jika datanya kosong.
 
-#### 3. Validasi Nilai Usia
+#### 2. Validasi Nilai Usia
 ```
-# 3. Validasi nilai usia
+# 2. Validasi nilai usia
 users_df = users_df[(users_df['age'] >= 10) & (users_df['age'] <= 90)]  # Range usia wajar
 ```
 - Data difilter agar hanya menyertakan pengguna dengan rentang usia **antara 10 hingga 90 tahun**.
@@ -545,102 +516,106 @@ Dataset ini merupakan hasil penggabungan dari tiga sumber data utama: `users_df`
 
 ## Modeling
 Model rekomendasi dibangun dengan dua pendekatan utama:
-### Content-Based Filtering
+### **Content Based Filtering**
 Pendekatan ini menggunakan teknik **Content-Based Filtering** untuk merekomendasikan produk (handphone) berdasarkan kemiripan fitur antar produk.
 
-![image](https://github.com/user-attachments/assets/3c179c74-f30f-4bde-9147-ec01acf2f4d5)
-
-1. **Ekstraksi Fitur Produk**  
+1. **Ekstraksi Fitur Produk**
+```
+# Gabungkan fitur penting menjadi satu string teks
+products_df['features'] = (
+    products_df['brand'] + ' ' +
+    products_df['model'] + ' ' +
+    products_df['RAM'].astype(str) + 'GB RAM ' +
+    products_df['battery size'].astype(str) + 'mAh '
+)
+```
    Fitur-fitur penting dari setiap produk digabung menjadi satu string teks. Fitur yang digunakan:
    - `brand`
    - `model`
    - `RAM`
    - `battery size`
 
-2. **Representasi Teks (TF-IDF)**  
+2. **Representasi Teks (TF-IDF)**
+```
+# TF-IDF Vectorizer
+vectorizer = TfidfVectorizer()
+tfidf_matrix = vectorizer.fit_transform(products_df['features'])
+```
 - Menggunakan `TfidfVectorizer` untuk mengubah teks menjadi representasi numerik berdasarkan frekuensi term yang muncul.
 - TF-IDF membantu menekankan kata-kata unik yang membedakan satu produk dari lainnya.
 
-3. **Penghitungan Kemiripan Produk**  
+3. **Penghitungan Kemiripan Produk**
+```
+# Matriks kesamaan antar produk
+cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
+```
 - Menggunakan **cosine similarity** untuk mengukur kemiripan antar vektor fitur produk.
 - Semakin tinggi nilai cosine similarity (mendekati 1), semakin mirip dua produk tersebut.
 
-4. **Fungsi Rekomendasi**  
+4. **Fungsi Rekomendasi**
+```
+def recommend_by_product(product_name, top_n=5):
+    idx = indices.get(product_name)
+    if idx is None:
+        return "Produk tidak ditemukan."
+    sim_scores = list(enumerate(cosine_sim[idx]))
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[1:top_n+1]
+    product_indices = [i[0] for i in sim_scores]
+    return products_df.iloc[product_indices][['model', 'brand', 'price']]
+```
 Fungsi `recommend_by_product()` menerima input nama produk (misalnya `"galaxy s22"`) dan mengembalikan `top_n` produk paling mirip berdasarkan nilai kemiripan tertinggi.
 
-### Collaborative Filtering - SVD
+### **Collaborative Filtering**
 Pendekatan ini menggunakan teknik **Collaborative Filtering** dengan algoritma **Singular Value Decomposition (SVD)** dari library `Surprise`.
 
-![image](https://github.com/user-attachments/assets/608a61a9-1ed7-47c3-bdbc-ce9d31fad48d)
-
 1. **Persiapan Dataset**
+```
+# Buat dataset untuk Surprise
+reader = Reader(rating_scale=(1, 10))
+data = Dataset.load_from_df(ratings_df[['user_id', 'cellphone_id', 'rating']], reader)
+```
    - Data digunakan: `ratings_df` yang berisi `user_id`, `cellphone_id`, dan `rating`.
    - Library `Surprise` digunakan untuk membangun model SVD.
 
 2. **Pembagian Data**
+```
+# Split train-test
+trainset, testset = train_test_split(data, test_size=0.2, random_state=42)
+```
    - Dataset dibagi menjadi data pelatihan (80%) dan pengujian (20%) menggunakan `train_test_split`.
 
-3. **Pelatihan Model**
+4. **Pelatihan Model**
+```
+# Latih model SVD
+svd = SVD()
+svd.fit(trainset)
+```
    - Model SVD dilatih menggunakan data pelatihan.
 
-4. **Evaluasi Model**
+6. **Evaluasi Model**
+```
+# Evaluasi
+predictions = svd.test(testset)
+print("\nRMSE dari Collaborative Filtering (SVD):")
+rmse(predictions)
+```
    - Evaluasi dilakukan menggunakan metrik **RMSE (Root Mean Squared Error)** pada data pengujian.
    - Semakin kecil nilai RMSE, semakin baik kualitas prediksi rating.
 
-5. **Prediksi & Rekomendasi**
-   - Prediksi dilakukan pada seluruh pasangan user-produk yang belum diberi rating (anti-testset).
-   - Fungsi `get_top_n()` digunakan untuk menghasilkan `Top-N` rekomendasi terbaik untuk setiap user.
-
-6. **Contoh Output**
-   - Menampilkan 5 rekomendasi teratas untuk user dengan `user_id = 0`.
-
 ##  Evaluation
-### 📊 Evaluasi Model Collaborative Filtering (SVD)
-
-Evaluasi ini bertujuan untuk mengukur kinerja model rekomendasi berbasis **Collaborative Filtering dengan algoritma SVD** menggunakan data rating user terhadap produk smartphone.
-
----
-
-##  1. Metode Evaluasi
-
-- **RMSE (Root Mean Squared Error)** digunakan sebagai metrik utama evaluasi.
-- RMSE mengukur **selisih rata-rata antara rating aktual dan rating yang diprediksi**.
-- Semakin rendah nilai RMSE, semakin akurat prediksi yang dihasilkan oleh model.
-
-###  Hasil RMSE: RMSE Model Collaborative Filtering (SVD): 2.1936
-![image](https://github.com/user-attachments/assets/3bb71d43-78cb-4e19-a541-3151a913fb13)
-
-📌 **Interpretasi**:
-- Nilai RMSE 2.19 pada skala rating 1–10 tergolong cukup baik.
-- Ini menunjukkan bahwa prediksi model relatif dekat dengan rating aktual yang diberikan pengguna.
-- Namun, masih ada ruang untuk peningkatan, misalnya dengan optimasi parameter atau kombinasi model (hybrid).
-
----
-
-##  2. Contoh Rekomendasi untuk User ID = 1
-
-Berikut adalah **5 rekomendasi teratas** yang dihasilkan model untuk user dengan ID 1: 
-```
-Top 5 Rekomendasi (Collaborative Filtering) untuk User 1:
-- iphone 13 pro (Prediksi Rating: 8.45)
-- moto g power (2022) (Prediksi Rating: 6.63)
-```
-
-##  Insight:
-- Model merekomendasikan produk flagship dan mid-range, menandakan model menangkap preferensi berdasarkan pola rating user lain yang serupa.
-- Produk dengan prediksi rating tinggi cenderung berasal dari brand populer seperti Apple dan Motorola.
-- Rekomendasi bisa menjadi dasar personalisasi yang baik untuk user baru maupun aktif.
-  
----
-
-### 📊 Evaluasi Model Content-Based Filtering
+### **Content-Based Filtering**
 
 Evaluasi ini bertujuan untuk menganalisis hasil dari sistem rekomendasi berbasis **Content-Based Filtering**, yaitu dengan membandingkan kesamaan fitur antar produk.
-
 ---
 
 ## 1. Metode Evaluasi
-  - Model ini menggunakan **kemiripan atribut produk** seperti:
+```
+# Feature matrix
+features_cb = products_df[['RAM', 'main camera', 'battery size', 'price']].copy()
+features_cb_scaled = MinMaxScaler().fit_transform(features_cb)
+cos_sim = cosine_similarity(features_cb_scaled)
+```
+- Model ini menggunakan **kemiripan atribut produk** seperti:
   - **RAM**
   - **Main Camera**
   - **Battery Size**
@@ -649,10 +624,29 @@ Evaluasi ini bertujuan untuk menganalisis hasil dari sistem rekomendasi berbasis
   - Kemiripan antar produk dihitung menggunakan **cosine similarity**.
   - Produk yang paling mirip dengan produk target akan ditampilkan berdasarkan skor similarity tertinggi.
 
+---
 
 ## 2. Contoh Rekomendasi: Produk Mirip 'Galaxy S22'
+```
+# Lihat produk yang mirip dengan Galaxy S22
+target_model = 'galaxy s22'
 
+# Ambil index dari produk target
+idx = products_df[products_df['model'] == target_model].index[0]
+sim_scores = list(enumerate(cos_sim[idx]))
+sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+top_similar_idx = [i for i, score in sim_scores[1:6]]
+
+cb_results = products_df.iloc[top_similar_idx][['brand', 'model']]
+cb_results['similarity'] = [sim_scores[i][1] for i in range(1, 6)]
+
+print(f"\nTop 5 Produk Mirip '{target_model.title()}' (Content-Based Filtering):")
+for _, row in cb_results.iterrows():
+    print(f"- {row['brand'].title()} {row['model'].title()} (Similarity: {row['similarity']:.2f})")
+```
 Berikut adalah **5 produk teratas** yang memiliki kesamaan fitur tertinggi dengan Galaxy S22:
+
+
 ```
 Top 5 Produk Mirip 'Galaxy S22' (Content-Based Filtering):
 - Asus Zenfone 8 (Similarity: 0.99)
@@ -661,18 +655,112 @@ Top 5 Produk Mirip 'Galaxy S22' (Content-Based Filtering):
 - Oppo Find X5 Pro (Similarity: 0.98)
 - Xiaomi 12 Pro (Similarity: 0.98)
 ```
+## 3. Visualisasi
+```
+# Visualisasi
+plt.figure(figsize=(8, 5))
+sns.barplot(data=cb_results, x='similarity', y='model', palette='mako')
+plt.title(f"Top 5 Produk Mirip '{target_model.title()}'")
+plt.xlabel("Skor Kemiripan")
+plt.ylabel("Model")
+plt.tight_layout()
+plt.show()
+```
+
+![image](https://github.com/user-attachments/assets/5c546609-1dda-4589-ba29-d03bb753f377)
+
 ## 3. Interpretasi
 
 - Produk-produk di atas memiliki spesifikasi teknis yang sangat mirip dengan Galaxy S22, sehingga cocok sebagai alternatif.
 - Kemiripan diukur bukan dari merek, tetapi dari **fitur dan performa** teknis.
-
-## 4. Kesimpulan
-
-- **Content-Based Filtering** sangat cocok untuk pengguna yang telah memiliki referensi produk dan ingin menemukan alternatif serupa.
-- Namun, pendekatan ini kurang personal karena **tidak mempertimbangkan preferensi unik tiap pengguna**.
-- Idealnya, metode ini digunakan bersama dengan **Collaborative Filtering** dalam sistem rekomendasi hybrid untuk hasil terbaik.
+- Semua produk memiliki **skor kemiripan mendekati 1.0**, menunjukkan bahwa fitur-fitur teknisnya sangat serupa.
+- Produk seperti **Zenfone 8** dan **Pixel 6 Pro** menjadi alternatif utama.
+- Ini membantu pengguna menemukan opsi dengan **fitur sebanding**, meski dari brand berbeda atau harga lebih terjangkau.
 
 ---
+
+### **Collaborative Filtering**
+Evaluasi ini bertujuan untuk mengukur kinerja model rekomendasi berbasis **Collaborative Filtering dengan algoritma SVD** menggunakan data rating user terhadap produk smartphone.
+
+---
+
+##  1. Metode Evaluasi
+```
+# 1. Hitung RMSE (tanpa squared=False)
+y_true = [true_r for (_, _, true_r) in testset]
+y_est = [pred.est for pred in predictions]
+
+mse_score = mean_squared_error(y_true, y_est)
+rmse_score = np.sqrt(mse_score)
+```
+- **RMSE (Root Mean Squared Error)** digunakan sebagai metrik utama evaluasi.
+- RMSE mengukur **selisih rata-rata antara rating aktual dan rating yang diprediksi**.
+- Semakin rendah nilai RMSE, semakin akurat prediksi yang dihasilkan oleh model.
+
+###  Hasil RMSE: RMSE Model Collaborative Filtering (SVD): 2.1936
+
+  Insight:
+- Nilai RMSE 2.19 pada skala rating 1–10 tergolong cukup baik.
+- Ini menunjukkan bahwa prediksi model relatif dekat dengan rating aktual yang diberikan pengguna.
+- Namun, masih ada ruang untuk peningkatan, misalnya dengan optimasi parameter atau kombinasi model (hybrid).
+
+---
+
+##  2. Contoh Rekomendasi untuk User ID = 1
+```
+# 2. Top 5 Rekomendasi untuk user_id = 1
+from collections import defaultdict
+
+def get_top_n_recommendations(predictions, n=5):
+    top_n = defaultdict(list)
+    for uid, iid, true_r, est, _ in predictions:
+        top_n[uid].append((iid, est))
+
+    for uid, user_ratings in top_n.items():
+        user_ratings.sort(key=lambda x: x[1], reverse=True)
+        top_n[uid] = user_ratings[:n]
+    return top_n
+
+top_n = get_top_n_recommendations(predictions, n=5)
+user_id = 1
+
+print(f"\nTop 5 Rekomendasi (Collaborative Filtering) untuk User {user_id}:")
+for iid, est_rating in top_n[user_id]:
+    model_name = products_df[products_df['cellphone_id'] == iid]['model'].values[0]
+    print(f"- {model_name} (Prediksi Rating: {est_rating:.2f})")
+```
+Berikut adalah **5 rekomendasi teratas** yang dihasilkan model untuk user dengan ID 1:
+```
+Top 5 Rekomendasi (Collaborative Filtering) untuk User 1:
+- iphone 13 pro (Prediksi Rating: 8.45)
+- moto g power (2022) (Prediksi Rating: 6.63)
+```
+
+## 3. Visualisasi
+```
+# Collaborative Filtering
+
+# Buat DataFrame hasil rekomendasi
+collab_recs = pd.DataFrame(top_n[user_id], columns=['cellphone_id', 'predicted_rating'])
+collab_recs = collab_recs.merge(products_df[['cellphone_id', 'model', 'brand']], on='cellphone_id', how='left')
+
+plt.figure(figsize=(8,5))
+sns.barplot(data=collab_recs, x='predicted_rating', y='model', palette='coolwarm')
+plt.title(f"Top 5 Rekomendasi (Collaborative Filtering) untuk User {user_id}")
+plt.xlabel("Rating Prediksi")
+plt.ylabel("Phone")
+plt.tight_layout()
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/6e9863fe-f184-41f1-96c1-1b46eaae0b21)
+
+  Insight:
+- Model merekomendasikan produk flagship dan mid-range, menandakan model menangkap preferensi berdasarkan pola rating user lain yang serupa.
+- Produk dengan prediksi rating tinggi cenderung berasal dari brand populer seperti Apple dan Motorola.
+- Rekomendasi bisa menjadi dasar personalisasi yang baik untuk user baru maupun aktif.
+- iPhone 13 Pro memiliki rating prediksi tertinggi (~8.7) → kemungkinan besar disukai oleh User 1.
+- Moto G Power (2022) juga direkomendasikan tapi dengan skor lebih rendah (~6.8).
+
 
 # **Evaluasi Terhadap Business Understanding**
 ## ✅ Problem Statements
