@@ -38,7 +38,7 @@ Dataset yang digunakan adalah data Cellphones Recommendations dari Kaggle:
 print("\nList variabel products_df:")
 products_df
 ```
-Dari Dataset Products_df, terdapat 14 kolom dan 32 baris yang berisi informasi mengenai spesifikasi berbagai produk handphone:
+Dari Dataset Products_df, terdapat 14 kolom dan 33 baris yang berisi informasi mengenai spesifikasi berbagai produk handphone:
 - **`cellphone_id`**: ID unik untuk setiap produk handphone.  
 - **`brand`**: Merek dari handphone (misalnya Samsung, Xiaomi, dll).  
 - **`model`**: Nama atau tipe model dari handphone.  
@@ -143,14 +143,7 @@ Dataset `products_df` berisi **33 baris** dan **14 kolom** yang menggambarkan sp
 - Dataset relatif kecil (33 baris), sehingga analisis bisa lebih mendalam pada setiap fitur.
 
 #### 1. Distribusi Harga Handphone
-```
-# Distribusi Harga Handphone
-plt.figure(figsize=(10,5))
-sns.histplot(products_df['price'].dropna(), bins=30, kde=True, )
-plt.title('Distribusi Harga Handphone')
-plt.tight_layout()
-plt.show()
-```
+
 ![image](https://github.com/user-attachments/assets/dfa906de-3c0e-4968-acdb-e45a13d1b1f8)
 1. **Distribusi Positif Skew (Right-Skewed)**:
    - Sebagian besar handphone memiliki harga di bawah **1000**.
@@ -168,13 +161,7 @@ plt.show()
    - Kurva menunjukkan puncak (mode) pada rentang **200–400**, mengindikasikan harga paling umum dari produk yang tersedia.
   
 #### 2. Korelasi antara fitur numerik
-```
-# Korelasi antara fitur numerik
-numerical = products_df[['RAM', 'main camera', 'battery size', 'price']]
-sns.heatmap(numerical.corr(), annot=True, cmap='Blues')
-plt.title("Korelasi Fitur Numerik")
-plt.show()
-```
+
 ![image](https://github.com/user-attachments/assets/7937047d-60ee-4527-a069-bc9667e3bb54)
 
 Heatmap menunjukkan nilai korelasi antara fitur-fitur numerik dalam dataset handphone, yaitu:
@@ -202,6 +189,7 @@ Nilai korelasi berkisar antara -1 hingga 1:
 
 ---
 ### **Dataset users_df** 
+
 ![image](https://github.com/user-attachments/assets/251e685b-f002-4052-a37b-b1bbbf712bdb)
 
 Dataset `users_df` berisi 99 baris dan 4 kolom dengan Tipe data:
@@ -212,10 +200,7 @@ Dataset `users_df` berisi 99 baris dan 4 kolom dengan Tipe data:
   - Kolom `occupation` memiliki **1 nilai yang hilang** (NaN).
 
 Berdasarkan Deskripsi `users_df`,
-  ```
-  print("\nStatistik Deskriptif:")
-  users_df.describe(include='all')
-  ```
+
 - **Usia pengguna:**
   - Rata-rata: 36.4 tahun
   - Minimum: 21 tahun
@@ -237,15 +222,7 @@ Berdasarkan Deskripsi `users_df`,
  
 
 #### 1. Visualisasi distribusi usia pengguna
-```
-# Visualisasi distribusi usia pengguna
-plt.figure(figsize=(8, 5))
-sns.histplot(users_df['age'].dropna(), bins=20, kde=True, color='teal')
-plt.title("Distribusi Usia Pengguna")
-plt.xlabel("Usia")
-plt.ylabel("Jumlah Pengguna")
-plt.show()
-```
+
 ![image](https://github.com/user-attachments/assets/576d4766-ccfe-49b4-ba50-406832f7bdc3)
 
 Berdasarkan visualisasi dari distribusi pengguna, `users_df` memiliki informasi:
@@ -254,19 +231,7 @@ Berdasarkan visualisasi dari distribusi pengguna, `users_df` memiliki informasi:
 - Sedikit pengguna yang berusia di atas 50 tahun.
 
 #### 2. Visualisasi jumlah pengguna berdasarkan jenis kelamin
-```
-# Visualisasi jumlah pengguna berdasarkan jenis kelamin
-if 'gender' in users_df.columns:
-    gender_clean = users_df[users_df['gender'].isin(['Male', 'Female'])]
 
-    plt.figure(figsize=(6, 4))
-    sns.countplot(x='gender', data=gender_clean, palette='pastel')
-    plt.title("Distribusi Pengguna berdasarkan Jenis Kelamin")
-    plt.xlabel("Jenis Kelamin")
-    plt.ylabel("Jumlah Pengguna")
-    plt.grid(axis='y')
-    plt.show()
-```
 ![image](https://github.com/user-attachments/assets/cb0bcb7a-6d06-4861-9de4-d23d9e2d304e)
 
 Visualisasi tersebut, dapat di interpretasikan:
@@ -275,20 +240,7 @@ Visualisasi tersebut, dapat di interpretasikan:
 
 
 #### 3. Visualisasi jumlah pengguna berdasarkan pekerjaan dengan horizontal bar chart
-```
-# Visualisasi jumlah pengguna berdasarkan pekerjaan dengan horizontal bar chart
-if 'occupation' in users_df.columns:
-    plt.figure(figsize=(10, 12))
-    occupation_counts = users_df['occupation'].value_counts()
 
-    sns.barplot(y=occupation_counts.index, x=occupation_counts.values, palette='coolwarm')
-    plt.title("Distribusi Pengguna berdasarkan Pekerjaan")
-    plt.xlabel("Jumlah Pengguna")
-    plt.ylabel("Pekerjaan")
-    plt.grid(axis='x')
-    plt.tight_layout()
-    plt.show()
-```
 ![image](https://github.com/user-attachments/assets/65b22215-bb7e-49bc-b554-a16b457fab26)
 
 - Sebagian besar pengguna dalam dataset berasal dari latar belakang teknologi, dengan pekerjaan **Information Technology** menjadi yang paling umum, terlihat ada  **10 pengguna**. Hal ini menunjukkan potensi minat teknologi yang kuat di antara pengguna.
@@ -296,20 +248,10 @@ if 'occupation' in users_df.columns:
 - Terdapat beberapa entri yang duplikat penulisan seperti `manager`, `Manager`, dan `Manager` → perlu **normalisasi teks**.
 
 Maka dari itu karena terdapat entri yang duplikat, disini perlu di normalisasi dengan cara:
-```
-# Normalisasi kolom 'occupation' di users_df
-users_df['occupation_cleaned'] = (
-    users_df['occupation']
-    .str.lower()              # ubah ke huruf kecil
-    .str.strip()              # hilangkan spasi di awal/akhir
-    .str.replace(r'[^a-z\s]', '', regex=True)  # hapus karakter non-huruf (opsional)
-)
+- Mengubah ke huruf kecil
+- Menghilangkan spasi di awal/akhir
+- Menghapus karakter non-huruf 
 
-# Lihat hasil normalisasi dan distribusinya
-occupation_counts = users_df['occupation_cleaned'].value_counts()
-print(occupation_counts)
-
-```
 Sehingga didapatkan setelah normalisasi menjadi seperti ini:
 ![image](https://github.com/user-attachments/assets/8986bc48-1c7b-4f5b-8213-971adecc68b4)
 
@@ -326,9 +268,7 @@ Dataset `users_df` berisi 990 baris dan 3 kolom dengan Tipe data:
 Dari dataset ini, semua kolom tidak ada yang memiliki nilai kosong.
 
 Berdasarkan Deskripsi `ratings_df`,
-```
-ratings_df.describe(include='all')
-```
+
 ![image](https://github.com/user-attachments/assets/04879538-3d08-47d1-801a-017451a89750)
 
 Dapat di interpretasikan bahwa:
@@ -340,46 +280,16 @@ Dapat di interpretasikan bahwa:
 - Kemudia terdapat outlier pada rating maksimum (18), dari skala 1–10. 
 
 #### 1. Distribusi Nilai Rating
-```
-# Distribusi Nilai Rating
 
-# Buang data dengan rating di luar rentang 1–10
-ratings_df = ratings_df[(ratings_df['rating'] >= 1) & (ratings_df['rating'] <= 10)]
-
-plt.figure(figsize=(8, 5))
-sns.countplot(x='rating', data=ratings_df, palette='Set2')
-plt.title("Distribusi Nilai Rating")
-plt.xlabel("Rating")
-plt.ylabel("Jumlah")
-plt.grid(axis='y')
-plt.show()
-```
 ![image](https://github.com/user-attachments/assets/c326549c-8b6e-4ebd-8510-7c69e3631097)
 
 Karena sebelumnya terdapat outlier, yaitu ada rating dengan nilai 18, maka dari itu:
-```
-# Buang data dengan rating di luar rentang 1–10
-ratings_df = ratings_df[(ratings_df['rating'] >= 1) & (ratings_df['rating'] <= 10)]
-```
-Sehingga dihasilkan seperti pada visualisasi di atas. Visual ini terlihat bahwa:
+- Membuang data dengan rating di luar rentang 1–10. Sehingga dihasilkan seperti pada visualisasi di atas. Visual ini terlihat bahwa:
 - Rating paling sering diberikan yaitu 8, terlhat hampir 200 kali.
 - Sebagian besar pengguna memberikan **rating antara 6–10**, menunjukkan kecenderungan penilaian positif.
 
 #### 2. Jumlah rating per produk
-```
-# Jumlah rating per produk
-rating_counts = ratings_df['cellphone_id'].value_counts()
-top_rated = rating_counts.head(10).index
 
-plt.figure(figsize=(10,5))
-sns.barplot(x=products_df[products_df['cellphone_id'].isin(top_rated)]['model'],
-            y=rating_counts[top_rated].values)
-plt.xticks(rotation=45)
-plt.title("10 Handphone dengan Rating Terbanyak")
-plt.xlabel("Model")
-plt.ylabel("Jumlah Rating")
-plt.show()
-```
 ![image](https://github.com/user-attachments/assets/67982995-7439-4ce8-b81c-74a27f1066b7)
 
 Jumlah rating per produk di atas terlihat bahwa:
@@ -391,6 +301,19 @@ Jumlah rating per produk di atas terlihat bahwa:
 ---
 
 ## Data Preparation
+
+### Penanganan Data Duplikat
+Untuk memastikan akurasi analisis dan efisiensi komputasi, data duplikat dihapus menggunakan fungsi drop_duplicates() dari pandas. Duplikasi data dapat menyebabkan bias karena nilai-nilai yang sama dihitung lebih dari sekali, serta memperlambat proses pelatihan model.
+
+### Penanganan Missing Value
+Data yang hilang ditangani dengan beberapa metode, seperti mengisi nilai berdasarkan modus atau melakukan interpolasi, tergantung pada konteks variabel. Penanganan ini penting agar tidak mengganggu proses analisis dan menjaga performa model tetap optimal.
+
+### Penggabungan Dataset
+Dataset ratings_df, users_df, dan products_df digabung menggunakan fungsi merge() dari pandas. Penggabungan ini diperlukan untuk membangun sistem rekomendasi berbasis preferensi pengguna, karena masing-masing dataset menyediakan informasi pelengkap satu sama lain seperti spesifikasi produk, identitas pengguna, dan rating yang diberikan.
+
+### Transformasi Fitur Teks dengan TF-IDF
+Fitur teks seperti nama model handphone diubah menjadi representasi numerik menggunakan metode TF-IDF (Term Frequency-Inverse Document Frequency). Representasi ini memungkinkan sistem mengenali kemiripan antar produk berdasarkan deskripsi teksnya.
+
 Langkah-langkah berikut dilakukan untuk menyiapkan data dari masing-masing dataset sebelum proses pemodelan. Semua teknik disusun sesuai urutan eksekusi di notebook:
 
 ### Data Preparation Products_df
@@ -398,82 +321,45 @@ Langkah-langkah berikut dilakukan untuk menyiapkan data dari masing-masing datas
 Karena tidak ada data yang hilang dan duplikat pada dataset products_df, sehingga preparation yang dilakukan sebagai berikut:
 
 #### 1. Konversi Tipe Data
-```
-# Konversi tipe data jika perlu
-products_df['price'] = products_df['price'].astype(float)
-```
 - Kolom `price` dikonversi menjadi tipe data **float** agar sesuai untuk analisis numerik dan pemodelan.
 
 #### 2. Standarisasi Teks
-```
-# Standarisasi teks
-products_df['model'] = products_df['model'].str.lower().str.strip()
-products_df['brand'] = products_df['brand'].str.lower().str.strip()
-```
 - Nilai pada kolom `model` dan `brand` telah dinormalisasi dengan:
-  - Mengubah seluruh huruf menjadi **lowercase**
-  - Menghapus **spasi di awal dan akhir**
+- Mengubah seluruh huruf menjadi **lowercase**
+- Menghapus **spasi di awal dan akhir**
 - Langkah ini penting untuk menghindari duplikasi tidak langsung akibat perbedaan penulisan teks.
 
 ### Data Preparation Users_df
 
 #### 1. Penanganan Missing Value
-```
-# 1. Tangani nilai kosong
-users_df['occupation_cleaned'] = users_df['occupation_cleaned'].fillna('unknown')
-```
 - Kolom `occupation_cleaned` (hasil normalisasi teks dari `occupation` berdasarkan huruf kecil dan besarnya).
 - Karena pada dataset users_df ini terdapat `1` data yang hilang, maka dari itu `occupation_cleaned` hasil normalisasi ini  diisi dengan **"unknown"** jika datanya kosong.
 
 #### 2. Validasi Nilai Usia
-```
-# 2. Validasi nilai usia
-users_df = users_df[(users_df['age'] >= 10) & (users_df['age'] <= 90)]  # Range usia wajar
-```
 - Data difilter agar hanya menyertakan pengguna dengan rentang usia **antara 10 hingga 90 tahun**.
 - Tujuan langkah ini adalah untuk menghapus outlier yang tidak realistis (misalnya usia <10 atau >90).
 
 
 ### Data Preparation Ratings_df
 #### 1. Pembersihan Nilai Outlier
-```
-# 1. bersihkan dari nilai outlier (rating > 10)
-ratings_df = ratings_df[(ratings_df['rating'] >= 1) & (ratings_df['rating'] <= 10)]
-```
 - Hanya rating dengan rentang **1 hingga 10** yang disertakan.
 - Nilai rating di luar batas ini (misalnya 18) dianggap **outlier** dan telah dihapus untuk menjaga integritas data.
 
 #### 2. Penghapusan Duplikasi User–Produk
-```
-# 2. Cek duplikasi rating user–produk
-ratings_df = ratings_df.drop_duplicates(subset=['user_id', 'cellphone_id'])
-```
 - Duplikasi pada kombinasi `user_id` dan `cellphone_id` telah dihapus.
 - Hal ini memastikan bahwa setiap pengguna hanya memberikan **satu rating unik per produk**.
-
 
 Kemudian setelah dataset ditangani, masuk ke tahap:
 ### Sinkronisasi Antar Dataset
 Sinkronisasi antar dataset adalah proses penting dalam data preprocessing untuk memastikan bahwa data yang digunakan dalam analisis atau pelatihan model benar-benar konsisten, bersih, dan relevan.
+
 #### 1. Filter Data Valid
-```
-# 1. Pastikan hanya user_id dan cellphone_id yang valid (ada di masing-masing tabel)
-ratings_df = ratings_df[
-    (ratings_df['user_id'].isin(users_df['user_id'])) &
-    (ratings_df['cellphone_id'].isin(products_df['cellphone_id']))
-]
-```
 - Data `ratings_df` disaring agar hanya memuat:
   - `user_id` yang terdapat dalam `users_df`
   - `cellphone_id` yang terdapat dalam `products_df`
 - Langkah ini memastikan bahwa semua interaksi hanya melibatkan pengguna dan produk yang **valid dan terdaftar**.
 
 #### 2. Penggabungan Dataset
-```
-# 2. Gabungkan semua untuk analisis lanjutan jika dibutuhkan
-merged_df = ratings_df.merge(users_df, on='user_id', how='left')
-merged_df = merged_df.merge(products_df, on='cellphone_id', how='left')
-```
 - Dataset `ratings_df`, `users_df`, dan `products_df` telah digabung:
   - Pertama berdasarkan `user_id`
   - Kemudian berdasarkan `cellphone_id`
@@ -511,6 +397,8 @@ Dataset ini merupakan hasil penggabungan dari tiga sumber data utama: `users_df`
 - Dataset ini siap digunakan untuk **sistem rekomendasi**.
 - Setiap baris mewakili satu interaksi pengguna terhadap satu produk.
 - Kolom-kolom dari `users_df` dan `products_df` telah berhasil ditransfer ke dalam satu frame yang seragam.
+
+### Persiapan
 
 ---
 
@@ -656,16 +544,6 @@ Top 5 Produk Mirip 'Galaxy S22' (Content-Based Filtering):
 - Xiaomi 12 Pro (Similarity: 0.98)
 ```
 ## 3. Visualisasi
-```
-# Visualisasi
-plt.figure(figsize=(8, 5))
-sns.barplot(data=cb_results, x='similarity', y='model', palette='mako')
-plt.title(f"Top 5 Produk Mirip '{target_model.title()}'")
-plt.xlabel("Skor Kemiripan")
-plt.ylabel("Model")
-plt.tight_layout()
-plt.show()
-```
 
 ![image](https://github.com/user-attachments/assets/5c546609-1dda-4589-ba29-d03bb753f377)
 
@@ -707,28 +585,7 @@ rmse_score = np.sqrt(mse_score)
 ---
 
 ##  2. Contoh Rekomendasi untuk User ID = 1
-```
-# 2. Top 5 Rekomendasi untuk user_id = 1
-from collections import defaultdict
 
-def get_top_n_recommendations(predictions, n=5):
-    top_n = defaultdict(list)
-    for uid, iid, true_r, est, _ in predictions:
-        top_n[uid].append((iid, est))
-
-    for uid, user_ratings in top_n.items():
-        user_ratings.sort(key=lambda x: x[1], reverse=True)
-        top_n[uid] = user_ratings[:n]
-    return top_n
-
-top_n = get_top_n_recommendations(predictions, n=5)
-user_id = 1
-
-print(f"\nTop 5 Rekomendasi (Collaborative Filtering) untuk User {user_id}:")
-for iid, est_rating in top_n[user_id]:
-    model_name = products_df[products_df['cellphone_id'] == iid]['model'].values[0]
-    print(f"- {model_name} (Prediksi Rating: {est_rating:.2f})")
-```
 Berikut adalah **5 rekomendasi teratas** yang dihasilkan model untuk user dengan ID 1:
 ```
 Top 5 Rekomendasi (Collaborative Filtering) untuk User 1:
@@ -737,21 +594,7 @@ Top 5 Rekomendasi (Collaborative Filtering) untuk User 1:
 ```
 
 ## 3. Visualisasi
-```
-# Collaborative Filtering
 
-# Buat DataFrame hasil rekomendasi
-collab_recs = pd.DataFrame(top_n[user_id], columns=['cellphone_id', 'predicted_rating'])
-collab_recs = collab_recs.merge(products_df[['cellphone_id', 'model', 'brand']], on='cellphone_id', how='left')
-
-plt.figure(figsize=(8,5))
-sns.barplot(data=collab_recs, x='predicted_rating', y='model', palette='coolwarm')
-plt.title(f"Top 5 Rekomendasi (Collaborative Filtering) untuk User {user_id}")
-plt.xlabel("Rating Prediksi")
-plt.ylabel("Phone")
-plt.tight_layout()
-plt.show()
-```
 ![image](https://github.com/user-attachments/assets/6e9863fe-f184-41f1-96c1-1b46eaae0b21)
 
   Insight:
